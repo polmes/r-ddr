@@ -1,3 +1,6 @@
+# SO6 data files
+*.so6
+
 # History files
 .Rhistory
 .Rapp.history
