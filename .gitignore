@@ -1,5 +1,6 @@
 # SO6 data files
 *.so6
+*.so6.pre
 
 # Executables
 prep/preprocess
