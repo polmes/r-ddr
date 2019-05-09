@@ -1,6 +1,9 @@
 # SO6 data files
 *.so6
 
+# Executables
+prep/preprocess
+
 # History files
 .Rhistory
 .Rapp.history
