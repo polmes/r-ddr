@@ -8,7 +8,9 @@ tables<-function(file){
 	#colClasses<-list(factor=c("Time1","Time2","Date1","Date2"))
 	colClasses<-list(character=c(5,6,11,12))
 	message("Reading File")
-	ddr2<-fread(file,drop=c(9,19),stringsAsFactors=TRUE,col.names=colnames,colClasses=colClasses)
+	ddr2<-fread(file,drop=c(9,20),stringsAsFactors=TRUE,col.names=colnames,colClasses=colClasses)
+	ddr2<-ddr2[!ICAO_orig %in% c("ZZZZ","AFIL") & !ICAO_dest %in% c("ZZZZ","AFIL")]
+
 	message("Splitting IDs")
 	ddr2[, c("PtID_st", "PtID_end") := tstrsplit(SegID, "_", fixed = TRUE)]
 	message("Converting to dates")
@@ -24,23 +26,7 @@ tables<-function(file){
 	flights<-ddr2[, .(FlID,Callsign,ICAO_orig,ICAO_dest,Dist_cum)]
 	ddr2[, c("ICAO_orig","ICAO_dest"):=NULL]
 	flights<-flights[,.SD[.N],by=FlID]
-
-
-	# Points Data (PtID Date_min Date_max Lon Lat)
-	#message("Processing Points Data")
-	#ptsstart<-ddr2[seq==1,.(PtID_st,Date_st,Lat_st,Lon_st)]
-	#ptsrest<-ddr2[,.(PtID_end,Date_end,Lat_end,Lon_end)]
-	#PtcolNames<-c("PtID","Date","Lat","Lon")
-	#names(ptsstart)<-PtcolNames
-	#names(ptsrest)<-PtcolNames
-	#points=rbindlist(list(ptsstart,ptsrest))
-	#setorder(points,"PtID","Lat","Lon")
-	#points[, `:=` (minDate=min(Date),maxDate=max(Date)),by=c("PtID","Lat","Lon")]
-	#points[,Date:=NULL]
-	#points<-unique(points)
 	
-	#ddr2[,c("Lat_st","Lon_st","Lat_end","Lon_end"):=NULL]
-
 	# Airplane Data (Callsign Date_min Date_max AC_type)
 	message("Processing Airplane Data")
 	planes<-ddr2[,.(Callsign,Date_st,Date_end,AC_type)]
@@ -62,9 +48,9 @@ tables<-function(file){
 	trajectory<-rbindlist(list(trajstart,trajrest))
 	setorder(trajectory,"FlID","seq")
 	
-	
 	return(list(trajectory,flights,planes,points))
 }
+
 system.time(
 tb<-tables("data/20160222_20160226_0000_2359_____m3.so6")
 )
