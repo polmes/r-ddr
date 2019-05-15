@@ -1,57 +1,98 @@
-library(data.table)
-library(fasttime)
-tables<-function(file){
-	colnames<-c("SegID","ICAO_orig","ICAO_dest","AC_type",
-				"time1","time2","FL1","FL2",
-				"Callsign","Date_st","Date_end",
-				"Lat_st","Lon_st","Lat_end","Lon_end","FlID","seq","Dist")
-	#colClasses<-list(factor=c("Time1","Time2","Date1","Date2"))
-	colClasses<-list(character=c(5,6,11,12))
-	message("Reading File")
-	ddr2<-fread(file,drop=c(9,20),stringsAsFactors=TRUE,col.names=colnames,colClasses=colClasses)
-	ddr2<-ddr2[!ICAO_orig %in% c("ZZZZ","AFIL") & !ICAO_dest %in% c("ZZZZ","AFIL")]
+processor <- function(file, getairplanes = FALSE) {
+	# Extract filename from path
+	filename <- basename(file)
+	message(paste('Processing file: ', filename))
+	
+	# m1 = plan / m3 = real
+	isreal <- if (substr(file, nchar(file) - 4, nchar(file) - 4) == '3') TRUE else FALSE
+	
+	colnames <- c('pts', 'orig', 'dest', 'aircraft', 'time1', 'time2', 'FL1', 'FL2', 'callsign',
+				  'date1', 'date2', 'lat1', 'lon1', 'lat2', 'lon2', 'id', 'dist')
+	colclasses <- list(character = c(5,6,11,12)) # time1, time2, date1, date2
+	
+	message('Reading file...')
+	ddr <- fread(file, drop = c(9, 18, 20), stringsAsFactors = TRUE, col.names = colnames, colClasses = colclasses)
+	format(object.size(ddr), units = 'MiB')
 
-	message("Splitting IDs")
-	ddr2[, c("PtID_st", "PtID_end") := tstrsplit(SegID, "_", fixed = TRUE)]
-	message("Converting to dates")
-	ddr2[, Date_st := fastPOSIXct(paste(substr(Date_st,1,2),"-",substr(Date_st,3,4),"-",substr(Date_st,5,6),"T", substr(time1,1,2),":",substr(time1,3,4),":",substr(time1,5,6)))]
-	ddr2[, Date_end := fastPOSIXct(paste(substr(Date_end,1,2),"-",substr(Date_end,3,4),"-",substr(Date_end,5,6),"T", substr(time2,1,2),":",substr(time2,3,4),":",substr(time2,5,6)))]
-	ddr2[,c("time1","time2"):=NULL]
-	message("Cummulative distance")
-	ddr2[,Dist_cum:=cumsum(Dist),by=FlID]
+	message('Removing flights with special origins or destinations...')
+	ddr <- ddr[!orig %in% c('ZZZZ', 'AFIL') & !dest %in% c('ZZZZ', 'AFIL')]
+	format(object.size(ddr), units = 'MiB')
+	
+	message('Removing non-commercial traffic...')
+	airlines <- readRDS('data/airlines.RDS')
+	availablemonths <- unique(airlines$month)
+	filedate <- as.Date(substr(filename, 1, 8), '%Y%m%d')
+	filemonth <- availablemonths[which.min(abs(availablemonths - filedate))]
+	airlines <- airlines[month == filemonth]
+	airlines <- airlines[, month := NULL]
+	ddr[grepl('^[[:upper:]]{3}[[:digit:]]', ddr$callsign), airline := substr(callsign, 1, 3)]
+	ddr <- ddr[airline %in% airlines$ICAO]
+	rm(airlines)
+	format(object.size(ddr), units = 'MiB')
+	
+	message('Computing cumulative distance...')
+	ddr[, cumdist := cumsum(dist), by = id]
+	format(object.size(ddr), units = 'MiB')
+	
+	# message('Removing technical-technical pairs of points...')
+	# ddr <- ddr[!grepl('^[$%#!].+_[$%#!]', ddr$pts),]
+	# format(object.size(ddr), units = 'MiB')
+
+	# message('Splitting IDs...')
+	# ddr[, c('pt1', 'pt2') := tstrsplit(pts, '_', fixed = TRUE)]
+	# format(object.size(ddr), units = 'MiB')
+	
+	message('Converting dates...')
+	ddr[, dt1 := fastPOSIXct(paste(substr(date1,1,2),'-',substr(date1,3,4),'-',substr(date1,5,6),'T', substr(time1,1,2),':',substr(time1,3,4),':',substr(time1,5,6)))]
+	ddr[, dt2 := fastPOSIXct(paste(substr(date2,1,2),'-',substr(date2,3,4),'-',substr(date2,5,6),'T', substr(time2,1,2),':',substr(time2,3,4),':',substr(time2,5,6)))]
+	ddr[, c('date1', 'date2', 'time1', 'time2') := NULL]
+	format(object.size(ddr), units = 'MiB')
+
+	# FLIGHTS: id orig dest callsign airline aircraft cumdist takeoff landing
+	message('Processing flight data...')
+	flights <- ddr[, .(id, orig, dest, callsign, airline, aircraft, cumdist)]
+	ddr[, c('orig', 'dest') := NULL]
+	flights <- flights[, .SD[.N], by = id]
+	flights[, takeoff := ddr[, .SD[1], by = id, .SDcols = c('dt1')][, .(dt1)]]
+	flights[, landing := ddr[, .SD[.N], by = id, .SDcols = c('dt2')][, .(dt2)]]
+	flights <- unique(flights)
+	format(object.size(flights), units = 'MiB')
+	
+	# ROUTES: id dt lat lon FL
+	message('Processing route (trajectory) data...')
+	start <- ddr[, .SD[1], by = id, .SDcols = c('dt1', 'lat1', 'lon1', 'FL1')]
+	ddr[, c('lat1', 'lon1', 'FL1') := NULL]
+	rest <- ddr[!grepl('_[$%#!]', ddr$pts), c('id', 'dt2', 'lat2', 'lon2', 'FL2')]
+	ddr[, c('pts', 'lat2', 'lon2', 'FL2') := NULL]
+	routecols <- c('id', 'dt', 'lat', 'lon', 'FL')
+	setnames(start, colnames(start), routecols)
+	setnames(rest, colnames(rest), routecols)
+	routes <- rbindlist(list(start, rest))
+	rm(start, rest)
+	setorder(routes, id, dt)
+	routes <- unique(routes)
+	format(object.size(routes), units = 'MiB')
+	
+	# Create list of tables
 	
 	
-	# Flights Data (FlID, Callsign, ICAO_orig, ICAO_dest, Total_dist)
-	message("Processing Flights Data")
-	flights<-ddr2[, .(FlID,Callsign,ICAO_orig,ICAO_dest,Dist_cum)]
-	ddr2[, c("ICAO_orig","ICAO_dest"):=NULL]
-	flights<-flights[,.SD[.N],by=FlID]
-	
-	# Airplane Data (Callsign Date_min Date_max AC_type)
-	message("Processing Airplane Data")
-	planes<-ddr2[,.(Callsign,Date_st,Date_end,AC_type)]
-	planes[,`:=` (minDate=min(Date_st),maxDate=max(Date_end)),by=c("Callsign","AC_type")]
-	planes[, c("Date_st","Date_end"):=NULL]
-	planes<-unique(planes)
-	
-	ddr2[,c("AC_type","Callsign"):=NULL]
-	
-	
-	# Trajectory Data
-	message("Processing Trajectory Data")
-	trajstart<-ddr2[seq==1,.(FlID,PtID_st,Date_st,Lat_st,Lon_st)]
-	trajrest<-ddr2[,.(FlID,PtID_end,Date_end,Lat_end,Lon_end,seq,Dist,Dist_cum)]
-	trajstart[,c("seq","Dist","Dist_cum"):=list(0,0,0)]
-	TrajColnames<-c("FlID","PtID","Date","Lat","Lon","seq","Dist_to_prev","Dist_cum")
-	names(trajstart)<-TrajColnames
-	names(trajrest)<-TrajColnames
-	trajectory<-rbindlist(list(trajstart,trajrest))
-	setorder(trajectory,"FlID","seq")
-	
-	return(list(trajectory,flights,planes,points))
+	# Export list of tables
+	if (!getairplanes) {
+		rm(ddr)
+		
+		tb <- list(isreal = isreal, flights = flights, routes = routes)
+	} else {
+		# AIRPLANES: callsign airline aircraft mindate maxdate
+		message('Processing airplane data...')
+		airplanes <- ddr[, .(callsign, airline, aircraft, dt1, dt2)]
+		rm(ddr)
+		airplanes[, `:=` (mindate = min(dt1), maxdate = max(dt2)), by = c('callsign')]
+		airplanes[, c('dt1', 'dt2') := NULL]
+		airplanes <- unique(airplanes)
+		format(object.size(flights), units = 'MiB')
+		
+		tb <- tb <- list(isreal = isreal, flights = flights, routes = routes, airplanes = airplanes)
+	}
+
+	return(tb)
 }
-
-system.time(
-tb<-tables("data/20160222_20160226_0000_2359_____m3.so6")
-)
-format(object.size(tb),units="MiB")
