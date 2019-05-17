@@ -1,4 +1,4 @@
-processor <- function(file, getairplanes = FALSE) {
+ddr.process <- function(file, getairplanes = FALSE) {
 	# Extract filename from path
 	filename <- basename(file)
 	message(paste('Processing file: ', filename))
