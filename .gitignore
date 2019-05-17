@@ -2,6 +2,12 @@
 *.so6
 *.so6.pre
 
+# Ignore 'data/' directory
+data/
+
+# Except for file 'airlines.RDS'
+!data/airlines.RDS
+
 # Executables
 prep/preprocess
 
