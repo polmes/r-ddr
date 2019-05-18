@@ -1,8 +1,6 @@
 # Input date range
-# day1 <- '2016/02/22'
-# day2 <- '2016/03/02'
-day1 <- '2019/02/08'
-day2 <- '2019/02/13'
+day1 <- '2016/02/22'
+day2 <- '2016/03/02'
 
 # Define required packages
 requirements <- c('data.table', 'fasttime', 'ggplot2', 'maps', 'mapproj')
@@ -59,9 +57,5 @@ if (file.exists(file)) {
 	saveRDS(data, file)
 }
 
-# Test data processing
-# file <- 'data/20160222_20160226_0000_2359_____m3.so6'
-# test <- ddr.process(file, getairplanes = TRUE)
-#
-# # Test map plotting
-# ddr.map(test$routes[1:1000], autocenter = FALSE)
+# Test map plotting
+ddr.map(data$real$routes[1:1000], autocenter = FALSE)
