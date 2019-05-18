@@ -57,22 +57,25 @@ ddr.process <- function(file, getairplanes = FALSE) {
 	flights[, landing := ddr[, .SD[.N], by = id, .SDcols = c('dt2')][, .(dt2)]]
 	# flights[, isreal := isreal]
 	flights <- unique(flights)
+	setorder(flights, id)
 	format(object.size(flights), units = 'MiB')
 
 	# ROUTES: id dt lat lon FL
 	message('Processing route (trajectory) data...')
-	start <- ddr[, .SD[1], by = id, .SDcols = c('dt1', 'lat1', 'lon1', 'FL1')]
+	start <- ddr[, .SD[1], by = id, .SDcols = c('pts', 'dt1', 'lat1', 'lon1', 'FL1')]
+	start[, pts := sub('^(.+)_.*$', '\\1', pts)]
 	ddr[, c('lat1', 'lon1', 'FL1') := NULL]
-	rest <- ddr[!grepl('_[$%#!]', ddr$pts), c('id', 'dt2', 'lat2', 'lon2', 'FL2')]
+	rest <- ddr[!grepl('_[$%#!]', ddr$pts), c('id', 'pts', 'dt2', 'lat2', 'lon2', 'FL2')]
+	rest[, pts := sub('^.*_(.+)$', '\\1', pts)]
 	ddr[, c('pts', 'lat2', 'lon2', 'FL2') := NULL]
-	routecols <- c('id', 'dt', 'lat', 'lon', 'FL')
+	routecols <- c('id', 'pt', 'dt', 'lat', 'lon', 'FL')
 	setnames(start, colnames(start), routecols)
 	setnames(rest, colnames(rest), routecols)
 	routes <- rbindlist(list(start, rest))
 	routes[, `:=` (lat = lat/60, lon = lon/60)]
 	rm(start, rest)
-	setorder(routes, id, dt)
 	routes <- unique(routes)
+	setorder(routes, id, dt)
 	format(object.size(routes), units = 'MiB')
 
 	# Export list of tables
