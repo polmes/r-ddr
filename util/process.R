@@ -12,11 +12,9 @@ ddr.process <- function(file, getairplanes = FALSE) {
 
 	message('Reading file...')
 	ddr <- fread(file, drop = c(9, 18, 20), stringsAsFactors = TRUE, col.names = colnames, colClasses = colclasses)
-	format(object.size(ddr), units = 'MiB')
 
 	message('Removing flights with special origins or destinations...')
 	ddr <- ddr[!orig %in% c('ZZZZ', 'AFIL') & !dest %in% c('ZZZZ', 'AFIL')]
-	format(object.size(ddr), units = 'MiB')
 
 	message('Removing non-commercial traffic...')
 	airlines <- readRDS(ddr.path('airlines'))
@@ -28,25 +26,20 @@ ddr.process <- function(file, getairplanes = FALSE) {
 	ddr[grepl('^[[:upper:]]{3}[[:digit:]]', ddr$callsign), airline := substr(callsign, 1, 3)]
 	ddr <- ddr[airline %in% airlines$ICAO]
 	rm(airlines)
-	format(object.size(ddr), units = 'MiB')
 
 	message('Computing cumulative distance...')
 	ddr[, cumdist := cumsum(dist), by = id]
-	format(object.size(ddr), units = 'MiB')
 
 	# message('Removing technical-technical pairs of points...')
 	# ddr <- ddr[!grepl('^[$%#!].+_[$%#!]', ddr$pts),]
-	# format(object.size(ddr), units = 'MiB')
 
 	# message('Splitting IDs...')
 	# ddr[, c('pt1', 'pt2') := tstrsplit(pts, '_', fixed = TRUE)]
-	# format(object.size(ddr), units = 'MiB')
 
 	message('Converting dates...')
 	ddr[, dt1 := fastPOSIXct(paste(substr(date1,1,2),'-',substr(date1,3,4),'-',substr(date1,5,6),'T', substr(time1,1,2),':',substr(time1,3,4),':',substr(time1,5,6)))]
 	ddr[, dt2 := fastPOSIXct(paste(substr(date2,1,2),'-',substr(date2,3,4),'-',substr(date2,5,6),'T', substr(time2,1,2),':',substr(time2,3,4),':',substr(time2,5,6)))]
 	ddr[, c('date1', 'date2', 'time1', 'time2') := NULL]
-	format(object.size(ddr), units = 'MiB')
 
 	# FLIGHTS: id orig dest callsign airline aircraft cumdist takeoff landing
 	message('Processing flight data...')
@@ -58,7 +51,6 @@ ddr.process <- function(file, getairplanes = FALSE) {
 	# flights[, isreal := isreal]
 	flights <- unique(flights)
 	setorder(flights, id)
-	format(object.size(flights), units = 'MiB')
 
 	# ROUTES: id dt lat lon FL
 	message('Processing route (trajectory) data...')
@@ -76,7 +68,6 @@ ddr.process <- function(file, getairplanes = FALSE) {
 	rm(start, rest)
 	routes <- unique(routes)
 	setorder(routes, id, dt)
-	format(object.size(routes), units = 'MiB')
 
 	# Export list of tables
 	if (!getairplanes) {
@@ -91,7 +82,6 @@ ddr.process <- function(file, getairplanes = FALSE) {
 		airplanes[, `:=` (mindate = min(dt1), maxdate = max(dt2)), by = c('callsign')]
 		airplanes[, c('dt1', 'dt2') := NULL]
 		airplanes <- unique(airplanes)
-		format(object.size(flights), units = 'MiB')
 
 		tb <- list(flights = flights, routes = routes, airplanes = airplanes)
 	}
