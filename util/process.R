@@ -1,10 +1,10 @@
 ddr.process <- function(file, getairplanes = FALSE) {
 	# Extract filename from path
 	filename <- basename(file)
-	message(paste('Processing file: ', filename))
+	message(paste('Processing file:', filename))
 
 	# m1 = plan / m3 = real
-	isreal <- if (substr(file, nchar(file) - 4, nchar(file) - 4) == '3') TRUE else FALSE
+	# isreal <- if (substr(file, nchar(file) - 4, nchar(file) - 4) == '3') TRUE else FALSE
 
 	colnames <- c('pts', 'orig', 'dest', 'aircraft', 'time1', 'time2', 'FL1', 'FL2', 'callsign',
 				  'date1', 'date2', 'lat1', 'lon1', 'lat2', 'lon2', 'id', 'dist')
@@ -19,7 +19,7 @@ ddr.process <- function(file, getairplanes = FALSE) {
 	format(object.size(ddr), units = 'MiB')
 
 	message('Removing non-commercial traffic...')
-	airlines <- readRDS('data/airlines.RDS')
+	airlines <- readRDS(ddr.path('airlines'))
 	availablemonths <- unique(airlines$month)
 	filedate <- as.Date(substr(filename, 1, 8), '%Y%m%d')
 	filemonth <- availablemonths[which.min(abs(availablemonths - filedate))]
@@ -55,6 +55,7 @@ ddr.process <- function(file, getairplanes = FALSE) {
 	flights <- flights[, .SD[.N], by = id]
 	flights[, takeoff := ddr[, .SD[1], by = id, .SDcols = c('dt1')][, .(dt1)]]
 	flights[, landing := ddr[, .SD[.N], by = id, .SDcols = c('dt2')][, .(dt2)]]
+	# flights[, isreal := isreal]
 	flights <- unique(flights)
 	format(object.size(flights), units = 'MiB')
 
@@ -78,7 +79,7 @@ ddr.process <- function(file, getairplanes = FALSE) {
 	if (!getairplanes) {
 		rm(ddr)
 
-		tb <- list(isreal = isreal, flights = flights, routes = routes)
+		tb <- list(flights = flights, routes = routes)
 	} else {
 		# AIRPLANES: callsign airline aircraft mindate maxdate
 		message('Processing airplane data...')
@@ -89,8 +90,9 @@ ddr.process <- function(file, getairplanes = FALSE) {
 		airplanes <- unique(airplanes)
 		format(object.size(flights), units = 'MiB')
 
-		tb <- tb <- list(isreal = isreal, flights = flights, routes = routes, airplanes = airplanes)
+		tb <- list(flights = flights, routes = routes, airplanes = airplanes)
 	}
 
+	message('Done.')
 	return(tb)
 }
