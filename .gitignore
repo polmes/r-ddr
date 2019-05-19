@@ -8,6 +8,9 @@ data/
 # Except for file 'airlines.RDS'
 !data/airlines.RDS
 
+# Ignore rendered HTML report
+report/report.html
+
 # Executables
 prep/preprocess
 
