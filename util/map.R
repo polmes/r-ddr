@@ -20,6 +20,6 @@ ddr.map <- function(routes, autocenter = TRUE) {
 					  xlim = c(-20, 50), ylim = c(32, 70)) # Europe
 		}
 
-	print(map)
+	# print(map)
 	return(map)
 }
