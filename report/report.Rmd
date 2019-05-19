@@ -22,10 +22,8 @@ output:
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
-```{r}
-bru <- 'EBBR'
-event <- c('2016-02-28', '2016-03-01')
-```
+# Air Traffic
+
 ```{r, fig.align='center'}
 ddr.map(data$real$routes[1:1000], autocenter = FALSE)
 ```
@@ -34,11 +32,24 @@ ddr.map(data$real$routes[1:1000], autocenter = FALSE)
 ddr.times(data$real$flights, bru, event)
 ```
 
-# Air Traffic
+On the day of the event, March 22, 2016, there were a total of `r div[, .N]` diverted flights that had intended to land on Brussels Airport (EBBR).
+
+```{r, fig.align='center'}
+ddr.map(data$real$routes[id %in% div[, id]], autocenter = FALSE)
+```
+
+## TODO
 
 - N flights vs. time with orig/dest at EBBR
 - N diverted flights vs. time with dest EBBR
 
 # Airports
+
+The nearby airports to EBBR include:
+- EBCI (Brussels South Charleroi)
+- EBLF (Liège)
+- EHEH (Eindhoven)
+- EBAW (Antwerp)
+- LFQQ (Lille)
 
 # Airlines
