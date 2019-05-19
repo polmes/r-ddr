@@ -2,7 +2,7 @@ ddr.map <- function(routes, autocenter = TRUE) {
 	map <- ggplot(map_data('world'), aes(x = long, y = lat, group = group)) +
 		geom_polygon(fill = 'white', color = 'black', size = 0.2) +
 		geom_path(data = routes,
-				  aes(x = lon, y = lat, group = id, color = id),
+				  aes(x = lon, y = lat, group = id, color = colors(distinct = TRUE)[id %% 502 + 1]),
 				  lwd = 0.25) +
 		theme(legend.position = 'none',
 			axis.line = element_blank(), axis.ticks = element_blank(),
