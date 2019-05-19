@@ -1,6 +1,6 @@
 # Input date range
 day1 <- '2016/02/22'
-day2 <- '2016/03/02'
+day2 <- '2016/03/27'
 
 # Define required packages
 requirements <- c('data.table', 'fasttime', 'ggplot2', 'maps', 'mapproj', 'dygraphs', 'rstudioapi')
@@ -56,6 +56,9 @@ if (file.exists(file)) {
 	message(paste('Saving to full file:', basename(file)))
 	saveRDS(data, file)
 }
+
+# Call analysis
+source('analysis.R')
 
 # Render report
 message('Rendering report...')
