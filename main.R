@@ -3,7 +3,7 @@ day1 <- '2016/02/22'
 day2 <- '2016/03/02'
 
 # Define required packages
-requirements <- c('data.table', 'fasttime', 'ggplot2', 'maps', 'mapproj')
+requirements <- c('data.table', 'fasttime', 'ggplot2', 'maps', 'mapproj', 'dygraphs', 'rstudioapi')
 
 # Check requirements
 missing <- requirements[!(requirements %in% installed.packages()[, 'Package'])]
@@ -57,5 +57,6 @@ if (file.exists(file)) {
 	saveRDS(data, file)
 }
 
-# Test map plotting
-ddr.map(data$real$routes[1:1000], autocenter = FALSE)
+# Render report
+message('Rendering report...')
+ddr.render('report.Rmd')
