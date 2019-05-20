@@ -24,13 +24,22 @@ knitr::opts_chunk$set(echo = FALSE)
 
 # Air Traffic
 
+## Air Traffic Evolution
+
 ```{r, fig.align='center'}
 ddr.times(data$real$flights, bru, event)
 ```
 
+## Diverted Flights {.tabset .tabset-fade}
+
 On the day of the event, March 22, 2016, there were a total of `r div[, .N]` diverted flights that had intended to land on Brussels Airport (EBBR).
 
-## Air Traffic Evolution {.tabset .tabset-fade}
+```{r, fig.align='center'}
+datatable(info[, .(orig, dest, airline, diff, fuel)], options = list(dom = 'tp', columnDefs = list(list(className = 'dt-center', targets = '_all'))), colnames = c('Origin', 'Destination', 'Airline', 'Distance Delta (NM)', 'Fuel Delta (kg)')) %>%
+	formatRound(columns = c('diff', 'fuel'), digits = 2)
+```
+
+On average, airlines actually saved `r format(abs(info[, mean(fuel)]), digits = 3)` kg of fuel by diverting flights to airports closer to the origin point.
 
 ### Static Map {-}
 
@@ -42,13 +51,6 @@ ddr.map(data$real$routes[id %in% div[, id]], autocenter = FALSE)
 
 ```{r, fig.align='center'}
 ddr.jsmap(data$real$routes[id %in% div[, id]], info, coord)
-```
-
-On average, airlines actually saved `r format(abs(info[, mean(fuel)]), digits = 3)` kg of fuel by diverting flights to airports closer to the origin point.
-
-```{r, fig.align='center'}
-datatable(info[, .(orig, dest, airline, diff, fuel)], options = list(dom = 'tp', columnDefs = list(list(className = 'dt-center', targets = '_all'))), colnames = c('Origin', 'Destination', 'Airline', 'Distance Delta (NM)', 'Fuel Delta (kg)')) %>%
-	formatRound(columns = c('diff', 'fuel'), digits = 2)
 ```
 
 ## TODO
