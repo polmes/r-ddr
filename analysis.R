@@ -10,7 +10,7 @@ div <- div[dest == bru & pt != dest & V3 == event[1]] # v3 = date
 div <- div[, c('dest', 'V3') := NULL]
 
 # Fuel burn
-fuelburn <- 1.7862 # fuel burn [kg/NM] average of A320's and B737's for short-haul flights
+fuelburn <- 6.1264 # fuel burn [kg/NM] average of A320's and B737's for short-haul flights
 info <- merge(data$real$flights[id %in% div[, id], .(id, airline, orig, cumdist)],
 			  data$plan$flights[id %in% div[, id], .(id, cumdist)],
 			  by = c('id'))
