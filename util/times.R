@@ -18,21 +18,21 @@ ddr.times <- function(flights, airport, event, onlydest = FALSE, title = 'Air Tr
 				width = '100%') %>%
 			dySeries('N.x', label = paste(airport, 'Departures')) %>%
 			dySeries('N.y', label = paste(airport, 'Arrivals')) %>%
-			dyRangeSelector(dateWindow = event) %>%
+			dyRangeSelector() %>%
 			dyOptions(colors = c('royalblue', 'coral')) %>%
 			dyLegend(width = '450') %>%
-			dyEvent(event[1], 'Disruption begins', labelLoc = 'bottom') %>%
-			dyEvent(event[2], 'Disruption ends', labelLoc = 'bottom')
+			dyEvent(event[1], 'Airport closes', labelLoc = 'bottom') %>%
+			dyEvent(event[2], 'Airport reopens', labelLoc = 'bottom')
 	} else {
 		dygraph(allFlights,
 				main = paste(title, 'at', airport),
 				ylab = paste('Number of Flights'),
 				width = '100%') %>%
 			dySeries('N', label = paste(airport, 'Arrivals')) %>%
-			dyRangeSelector(dateWindow = event) %>%
+			dyRangeSelector() %>%
 			dyOptions(colors = c('royalblue', 'coral')) %>%
 			dyLegend(show = 'always', width = '260') %>%
-			dyEvent(event[1], 'Disruption begins', labelLoc = 'bottom') %>%
-			dyEvent(event[2], 'Disruption ends', labelLoc = 'bottom')
+			dyEvent(event[1], 'Airport closes', labelLoc = 'bottom') %>%
+			dyEvent(event[2], 'Airport reopens', labelLoc = 'bottom')
 	}
 }
