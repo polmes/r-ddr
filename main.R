@@ -59,8 +59,12 @@ if (file.exists(file)) {
 }
 
 # Call analysis
+message('Performing data analysis...')
 source('analysis.R')
 
 # Render report
 message('Rendering report...')
 ddr.render('report.Rmd')
+
+# End
+message('Done.')
