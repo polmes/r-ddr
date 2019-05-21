@@ -53,6 +53,18 @@ ddr.map(data$real$routes[id %in% div[, id]], autocenter = FALSE)
 ddr.jsmap(data$real$routes[id %in% div[, id]], info, coord)
 ```
 
+### Animation {-}
+
+```{r, message=FALSE, results=FALSE}
+gifname <- 'diverted'
+giffile <- file.path('..', 'data', paste0(gifname, '.gif'))
+if (!file.exists(giffile)) {
+	ddr.animate(data$real$routes[id %in% div[, id]], giffile)
+}
+```
+![Diverted Flights Map Animation](`r giffile`) \
+
+
 ## TODO
 
 - N flights vs. time with orig/dest at EBBR
@@ -73,5 +85,7 @@ The nearby airports to EBBR include:
 Find # of flights in nearby airports
 
 ## Delays in nearby airports
+
+- Statistics (mean + sigma) for delays on each airport per day
 
 # Airlines

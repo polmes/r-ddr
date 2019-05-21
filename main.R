@@ -4,7 +4,7 @@ day2 <- '2016/04/22'
 
 # Define required packages
 requirements <- c('data.table', 'fasttime', 'ggplot2', 'rstudioapi', 'htmltools',
-				  'maps', 'mapproj', 'dygraphs',  'DT', 'leaflet')
+				  'maps', 'mapproj', 'dygraphs',  'DT', 'leaflet', 'gganimate')
 
 # Check requirements
 missing <- requirements[!(requirements %in% installed.packages()[, 'Package'])]
