@@ -3,7 +3,7 @@ day1 <- '2016/02/22'
 day2 <- '2016/04/26'
 
 # Define required packages
-requirements <- c('data.table', 'fasttime', 'ggplot2', 'rstudioapi', 'htmltools',
+requirements <- c('data.table', 'fasttime', 'ggplot2', 'rstudioapi', 'htmltools', 'xts',
 				  'maps', 'mapproj', 'dygraphs',  'DT', 'leaflet', 'gganimate')
 
 # Check requirements
