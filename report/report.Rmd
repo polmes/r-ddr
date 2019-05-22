@@ -30,7 +30,21 @@ knitr::opts_chunk$set(echo = FALSE)
 ddr.times(data$real$flights, bru, event)
 ```
 
-- Find average before/after (get % difference)
+- Traffic before the attacks: `r floor(before[, mean(N.x + N.y)])` average daily flights (including departures and arrivals)
+- Traffic after the attacks: `r floor(after[, mean(N.x + N.y)])` average daily flights (including departures and arrivals)
+
+Even one month after the event, the traffic is still lower. Overall, the traffic is reduced in a `r format(abs((after[, mean(N.x + N.y)] - before[, mean(N.x + N.y)]) / before[, mean(N.x + N.y)]) * 100, digits = 3)`% following the tragic events. Further details can be extracted from the figure below:
+
+```{r, fig.align='center'}
+ggplot(data = NULL, aes(y = N.x + N.y)) +
+	geom_boxplot(data = before, aes(x = 'Before')) +
+	stat_summary(data = before, aes(x = 'Before'), fun.y = mean, geom = 'point', shape = 5, size = 2.5) +
+	geom_boxplot(data = after, aes(x = 'After')) +
+	stat_summary(data = after, aes(x = 'After'), fun.y = mean, geom = 'point', shape = 5, size = 2.5) +
+	scale_x_discrete(limits = c('Before', 'After')) +
+	labs(title = paste('Average Daily Flights at', bru), x = NULL, y = 'Number of Flights') +
+	theme(plot.title = element_text(hjust = 0.5))
+```
 
 Bizarrely, despite the airport supposedly being closed from March 22 to April 3, the number of flights during the days following the attack is non-zero. Let's take a closer look at these flights:
 

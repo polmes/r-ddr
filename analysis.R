@@ -37,3 +37,13 @@ ufo <- merge(ufo, airlines[, .(ICAO, name)], by.x = c('airline'), by.y = c('ICAO
 ufo[, airline := NULL]
 ufo <- ufo[, .(id, orig, dest, name, aircraft, takeoff, landing)]
 setnames(ufo, c('id', 'orig', 'dest', 'airline', 'aircraft', 'takeoff', 'landing'))
+
+# Before/After
+# mind <- as.Date(paste(format(event[1], '%Y'), as.integer(format(event[1], '%m')) - 1, format(event[1], '%d'),
+# 					  sep = '-'))
+before <- merge(data$real$flights[orig == bru & as.Date(takeoff) < event[1], .N, by = as.Date(takeoff)],
+				data$real$flights[dest == bru & as.Date(landing) < event[1], .N, by = as.Date(landing)],
+				by = c('as.Date'))
+after <- merge(data$real$flights[orig == bru & as.Date(takeoff) > event[2], .N, by = as.Date(takeoff)],
+			   data$real$flights[dest == bru & as.Date(landing) > event[2], .N, by = as.Date(landing)],
+			   by = c('as.Date'))
