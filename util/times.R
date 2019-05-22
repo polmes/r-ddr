@@ -1,10 +1,10 @@
 ddr.times <- function(flights, airport, event, onlydest = FALSE, title = 'Air Traffic Evolution', group = NULL) {
 	cols <- c('date', 'N')
-	flightsWithDest <- flights[dest == airport, .N,  by = as.Date(landing)]
+	flightsWithDest <- flights[dest == airport, .N, by = as.Date(landing)]
 	setnames(flightsWithDest, cols)
 
 	if (!onlydest) {
-		flightsWithOrig <- flights[orig == airport, .N,  by = as.Date(takeoff)]
+		flightsWithOrig <- flights[orig == airport, .N, by = as.Date(takeoff)]
 		setnames(flightsWithOrig, cols)
 		allFlights <- merge(flightsWithOrig, flightsWithDest, by = c('date'))
 	} else {
