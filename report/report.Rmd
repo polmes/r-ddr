@@ -95,7 +95,15 @@ The nearby airports to EBBR include:
 
 ## Traffic in nearby airports
 
-- Find # of flights in nearby airports vs. time (group time series)
+```{r, fig.align='center', fig.height=2.5}
+ddr.times(data$real$flights, 'EBCI', event, group = 'nearby')
+# ddr.times(data$real$flights, 'EBLF', event, group = 'nearby')
+ddr.times(data$real$flights, 'EHEH', event, group = 'nearby')
+ddr.times(data$real$flights, 'EBAW', event, group = 'nearby')
+ddr.times(data$real$flights, 'LFQQ', event, group = 'nearby')
+```
+
+- Find average before/after (get % difference)
 
 ## Delays in nearby airports
 

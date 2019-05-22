@@ -1,4 +1,4 @@
-ddr.times <- function(flights, airport, event, onlydest = FALSE, title = 'Air Traffic Evolution') {
+ddr.times <- function(flights, airport, event, onlydest = FALSE, title = 'Air Traffic Evolution', group = NULL) {
 	cols <- c('date', 'N')
 	flightsWithDest <- flights[dest == airport, .N,  by = as.Date(landing)]
 	setnames(flightsWithDest, cols)
@@ -15,23 +15,25 @@ ddr.times <- function(flights, airport, event, onlydest = FALSE, title = 'Air Tr
 		dygraph(allFlights,
 				main = paste(title, 'at', airport),
 				ylab = 'Number of Flights',
+				group = group,
 				width = '100%') %>%
 			dySeries('N.x', label = paste(airport, 'Departures')) %>%
 			dySeries('N.y', label = paste(airport, 'Arrivals')) %>%
 			dyRangeSelector() %>%
 			dyOptions(colors = c('royalblue', 'coral')) %>%
-			dyLegend(width = '450') %>%
+			dyLegend(width = '330') %>%
 			dyEvent(event[1], 'Airport closes', labelLoc = 'bottom') %>%
 			dyEvent(event[2], 'Airport reopens', labelLoc = 'bottom')
 	} else {
 		dygraph(allFlights,
 				main = paste(title, 'at', airport),
 				ylab = paste('Number of Flights'),
+				group = group,
 				width = '100%') %>%
 			dySeries('N', label = paste(airport, 'Arrivals')) %>%
 			dyRangeSelector() %>%
 			dyOptions(colors = c('royalblue', 'coral')) %>%
-			dyLegend(show = 'always', width = '260') %>%
+			dyLegend(show = 'always', width = '240') %>%
 			dyEvent(event[1], 'Airport closes', labelLoc = 'bottom') %>%
 			dyEvent(event[2], 'Airport reopens', labelLoc = 'bottom')
 	}
