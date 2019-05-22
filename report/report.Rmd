@@ -24,10 +24,28 @@ knitr::opts_chunk$set(echo = FALSE)
 
 # Air Traffic
 
-## Air Traffic Evolution
+## Air Traffic Evolution {.tabset .tabset-fade}
 
 ```{r, fig.align='center'}
 ddr.times(data$real$flights, bru, event)
+```
+
+- Find average before/after (get % difference)
+
+Bizarrely, despite the airport supposedly being closed from March 22 to April 3, the number of flights during the days following the attack is non-zero. Let's take a closer look at these flights:
+
+### EBBR Departures {-}
+
+```{r}
+datatable(ufo[orig == bru, .(dest, airline, aircraft, takeoff, landing)], options = list(dom = 'tp', columnDefs = list(list(className = 'dt-center', targets = '_all'))), colnames = c('Destination', 'Airline', 'Aircraft', 'Departure', 'Arrival')) %>%
+	formatDate(columns = c('takeoff', 'landing'), method = 'toLocaleString')
+```
+
+### EBBR Arrivals {-}
+
+```{r}
+datatable(ufo[dest == bru, .(orig, airline, aircraft, takeoff, landing)], options = list(dom = 'tp', columnDefs = list(list(className = 'dt-center', targets = '_all'))), colnames = c('Origin', 'Airline', 'Aircraft', 'Departure', 'Arrival')) %>%
+	formatDate(columns = c('takeoff', 'landing'), method = 'toLocaleString')
 ```
 
 ## Diverted Flights {.tabset .tabset-fade}
@@ -35,11 +53,11 @@ ddr.times(data$real$flights, bru, event)
 On the day of the event, March 22, 2016, there were a total of `r div[, .N]` diverted flights that had intended to land on Brussels Airport (EBBR).
 
 ```{r, fig.align='center'}
-datatable(info[, .(orig, dest, airline, diff, fuel)], options = list(dom = 'tp', columnDefs = list(list(className = 'dt-center', targets = '_all'))), colnames = c('Origin', 'Destination', 'Airline', 'Distance Delta (NM)', 'Fuel Delta (kg)')) %>%
+datatable(div[, .(orig, dest, airline, diff, fuel)], options = list(dom = 'tp', columnDefs = list(list(className = 'dt-center', targets = '_all'))), colnames = c('Origin', 'Destination', 'Airline', 'Distance Delta (NM)', 'Fuel Delta (kg)')) %>%
 	formatRound(columns = c('diff', 'fuel'), digits = 2)
 ```
 
-On average, airlines actually saved `r format(abs(info[, mean(fuel)]), digits = 3)` kg of fuel by diverting flights to airports closer to the origin point.
+On average, airlines actually saved `r format(abs(div[, mean(fuel)]), digits = 3)` kg of fuel by diverting flights to airports closer to the origin point.
 
 ### Static Map {-}
 
@@ -50,7 +68,7 @@ ddr.map(data$real$routes[id %in% div[, id]], autocenter = FALSE)
 ### Interactive Map {-}
 
 ```{r, fig.align='center'}
-ddr.jsmap(data$real$routes[id %in% div[, id]], info, coord)
+ddr.jsmap(data$real$routes[id %in% div[, id]], div, coord)
 ```
 
 ### Animation {-}
@@ -65,11 +83,6 @@ if (!file.exists(giffile)) {
 ![Diverted Flights Map Animation](`r giffile`) \
 
 
-## TODO
-
-- N flights vs. time with orig/dest at EBBR
-- N diverted flights vs. time with dest EBBR
-
 # Airports
 
 The nearby airports to EBBR include:
@@ -82,10 +95,15 @@ The nearby airports to EBBR include:
 
 ## Traffic in nearby airports
 
-Find # of flights in nearby airports
+- Find # of flights in nearby airports vs. time (group time series)
 
 ## Delays in nearby airports
 
-- Statistics (mean + sigma) for delays on each airport per day
+- Delays on each airport vs. time (per hour)
+- Boxplot (mean + sigma) comparing average delays on each airport (while EBBR closed)
+- Find average delay before/during/after
 
 # Airlines
+
+- Find from total flights the airlines that were most affected (from those that travel to EBBR)
+- Average delays (while EBBR closed) by airline
