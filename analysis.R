@@ -2,6 +2,7 @@
 bru <- 'EBBR' # airport ICAO code
 coord <- c(50.90139, 4.484444) # location (lat, lon)
 event <- c('2016/03/22', '2016/04/03') # interval (closes, reopens)
+nearby <- c('EBCI', 'EBLG', 'EBAW', 'EHEH', 'LFQQ') # nearby airports
 
 # Convert to dates
 event <- as.Date(event, '%Y/%m/%d')
@@ -47,3 +48,18 @@ before <- merge(data$real$flights[orig == bru & as.Date(takeoff) < event[1], .N,
 after <- merge(data$real$flights[orig == bru & as.Date(takeoff) > event[2], .N, by = as.Date(takeoff)],
 			   data$real$flights[dest == bru & as.Date(landing) > event[2], .N, by = as.Date(landing)],
 			   by = c('as.Date'))
+befores <- merge(data$real$flights[orig %in% nearby & as.Date(takeoff) < event[1], .N,
+								   by = .(as.Date(takeoff), orig)],
+				 data$real$flights[dest %in% nearby & as.Date(landing) < event[1], .N,
+				 				   by = .(as.Date(landing), dest)],
+				 by.x = c('as.Date', 'orig'), by.y = c('as.Date', 'dest'))
+durings <- merge(data$real$flights[orig %in% nearby & as.Date(takeoff) >= event[1] & as.Date(takeoff) <= event[2],
+								   .N, by = .(as.Date(takeoff), orig)],
+				 data$real$flights[dest %in% nearby & as.Date(landing) >= event[1] & as.Date(landing) <= event[2],
+				 				   .N, by = .(as.Date(landing), dest)],
+				 by.x = c('as.Date', 'orig'), by.y = c('as.Date', 'dest'))
+afters <- merge(data$real$flights[orig %in% nearby & as.Date(takeoff) > event[2], .N,
+								   by = .(as.Date(takeoff), orig)],
+				 data$real$flights[dest %in% nearby & as.Date(landing) > event[2], .N,
+				 				  by = .(as.Date(landing), dest)],
+				 by.x = c('as.Date', 'orig'), by.y = c('as.Date', 'dest'))

@@ -102,22 +102,38 @@ if (!file.exists(giffile)) {
 The nearby airports to EBBR include:
 
 - EBCI (Brussels South Charleroi)
-- EBLF (Liège)
-- EHEH (Eindhoven)
+- EBLG (Liège)
 - EBAW (Antwerp)
+- EHEH (Eindhoven)
 - LFQQ (Lille)
 
 ## Traffic in nearby airports
 
 ```{r, fig.align='center', fig.height=2.5}
-ddr.times(data$real$flights, 'EBCI', event, group = 'nearby')
-# ddr.times(data$real$flights, 'EBLF', event, group = 'nearby')
-ddr.times(data$real$flights, 'EHEH', event, group = 'nearby')
-ddr.times(data$real$flights, 'EBAW', event, group = 'nearby')
-ddr.times(data$real$flights, 'LFQQ', event, group = 'nearby')
+ddr.times(data$real$flights, nearby[1], event, group = 'nearby')
+ddr.times(data$real$flights, nearby[1], event, group = 'nearby')
+ddr.times(data$real$flights, nearby[2], event, group = 'nearby')
+ddr.times(data$real$flights, nearby[4], event, group = 'nearby')
+ddr.times(data$real$flights, nearby[5], event, group = 'nearby')
 ```
 
-- Find average before/after (get % difference)
+```{r, fig.align='center'}
+ggplot(data = NULL, aes(y = N.x + N.y)) +
+	geom_boxplot(data = befores, aes(x = orig, color = 'before')) +
+	geom_boxplot(data = durings, aes(x = orig, color = 'during')) +
+	geom_boxplot(data = afters, aes(x = orig, color = 'after')) +
+	scale_color_manual(limits = c('before', 'during', 'after'), values = c('green', 'red', 'blue'),
+					   name = NULL, labels = c('Before the attack', paste('While', bru, 'closed'),
+					   						   paste('After', bru, 'reopens'))) +
+	labs(title = 'Average Daily Flights in Nearby Airports', x = NULL, y = 'Number of Flights') +
+	theme(plot.title = element_text(hjust = 0.5), legend.position = 'bottom')
+```
+
+```{r, results='asis'}
+for (airport in nearby) {
+	cat(paste('-', airport, 'traffic:\n\t*', paste0(sprintf('%+.1f', (afters[orig == airport, mean(N.x + N.y)] - befores[orig == airport, mean(N.x + N.y)]) / befores[orig == airport, mean(N.x + N.y)] * 100), '%'), 'while', bru, 'was closed with respect to before the attack\n\t*', paste0(sprintf('%+.1f', (durings[orig == airport, mean(N.x + N.y)] - befores[orig == airport, mean(N.x + N.y)]) / befores[orig == airport, mean(N.x + N.y)] * 100), '%'), 'after', bru, 'reopens with respect to before the attack\n'))
+}
+```
 
 ## Delays in nearby airports
 
