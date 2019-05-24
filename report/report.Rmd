@@ -109,12 +109,10 @@ The nearby airports to EBBR include:
 
 ## Traffic in nearby airports
 
-```{r, fig.align='center', fig.height=2.5}
-ddr.times(data$real$flights, nearby[1], event, group = 'nearby')
-ddr.times(data$real$flights, nearby[1], event, group = 'nearby')
-ddr.times(data$real$flights, nearby[2], event, group = 'nearby')
-ddr.times(data$real$flights, nearby[4], event, group = 'nearby')
-ddr.times(data$real$flights, nearby[5], event, group = 'nearby')
+```{r, fig.align='center'}
+htmltools::tagList(lapply(nearby, function(airport) {
+	ddr.times(data$real$flights, airport, event, group = 'nearby', height = '250px')
+}))
 ```
 
 ```{r, fig.align='center'}

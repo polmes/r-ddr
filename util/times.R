@@ -1,4 +1,5 @@
-ddr.times <- function(flights, airport, event, onlydest = FALSE, title = 'Air Traffic Evolution', group = NULL) {
+ddr.times <- function(flights, airport, event, onlydest = FALSE, title = 'Air Traffic Evolution',
+					  group = NULL, height = NULL) {
 	cols <- c('date', 'N')
 	flightsWithDest <- flights[dest == airport, .N, by = as.Date(landing)]
 	setnames(flightsWithDest, cols)
@@ -16,7 +17,7 @@ ddr.times <- function(flights, airport, event, onlydest = FALSE, title = 'Air Tr
 				main = paste(title, 'at', airport),
 				ylab = 'Number of Flights',
 				group = group,
-				width = '100%') %>%
+				width = '100%', height = height) %>%
 			dySeries('N.x', label = paste(airport, 'Departures')) %>%
 			dySeries('N.y', label = paste(airport, 'Arrivals')) %>%
 			dyRangeSelector() %>%
@@ -29,7 +30,7 @@ ddr.times <- function(flights, airport, event, onlydest = FALSE, title = 'Air Tr
 				main = paste(title, 'at', airport),
 				ylab = paste('Number of Flights'),
 				group = group,
-				width = '100%') %>%
+				width = '100%', height = height) %>%
 			dySeries('N', label = paste(airport, 'Arrivals')) %>%
 			dyRangeSelector() %>%
 			dyOptions(colors = c('royalblue', 'coral')) %>%
