@@ -27,17 +27,19 @@ knitr::opts_chunk$set(echo = FALSE)
 ddr.times(data$real$flights, bru, event)
 ```
 
-- Traffic before the attacks: `r floor(before[, mean(N.x + N.y)])` average daily flights (including departures and arrivals)
-- Traffic after the attacks: `r floor(after[, mean(N.x + N.y)])` average daily flights (including departures and arrivals)
+- Traffic before the attacks: `r floor(before[orig == bru, mean(N.x + N.y)])` average daily flights (including departures and arrivals)
+- Traffic after the attacks: `r floor(after[orig == bru, mean(N.x + N.y)])` average daily flights (including departures and arrivals)
 
-Even one month after the event, the traffic is still lower. Overall, the traffic is reduced in a `r format(abs((after[, mean(N.x + N.y)] - before[, mean(N.x + N.y)]) / before[, mean(N.x + N.y)]) * 100, digits = 3)`% following the tragic events. Further details can be extracted from the figure below:
+Even one month after the event, the traffic is still lower. Overall, the traffic is reduced in a `r format(abs((after[orig == bru, mean(N.x + N.y)] - before[orig == bru, mean(N.x + N.y)]) / before[orig == bru, mean(N.x + N.y)]) * 100, digits = 3)`% following the tragic events. Further details can be extracted from the figure below:
 
 ```{r, fig.align='center'}
 ggplot(data = NULL, aes(y = N.x + N.y)) +
-	geom_boxplot(data = before, aes(x = 'Before')) +
-	stat_summary(data = before, aes(x = 'Before'), fun.y = mean, geom = 'point', shape = 5, size = 2.5) +
-	geom_boxplot(data = after, aes(x = 'After')) +
-	stat_summary(data = after, aes(x = 'After'), fun.y = mean, geom = 'point', shape = 5, size = 2.5) +
+	geom_boxplot(data = before[orig == bru], aes(x = 'Before')) +
+	stat_summary(data = before[orig == bru], aes(x = 'Before'),
+				 fun.y = mean, geom = 'point', shape = 5, size = 2.5) +
+	geom_boxplot(data = after[orig == bru], aes(x = 'After')) +
+	stat_summary(data = after[orig == bru], aes(x = 'After'),
+				 fun.y = mean, geom = 'point', shape = 5, size = 2.5) +
 	scale_x_discrete(limits = c('Before', 'After')) +
 	labs(title = paste('Average Daily Flights at', bru), x = NULL, y = 'Number of Flights') +
 	theme(plot.title = element_text(hjust = 0.5))
@@ -114,9 +116,9 @@ htmltools::tagList(lapply(nearby, function(airport) {
 
 ```{r, fig.align='center'}
 ggplot(data = NULL, aes(y = N.x + N.y)) +
-	geom_boxplot(data = befores, aes(x = orig, color = 'before')) +
-	geom_boxplot(data = durings, aes(x = orig, color = 'during')) +
-	geom_boxplot(data = afters, aes(x = orig, color = 'after')) +
+	geom_boxplot(data = before[orig != bru], aes(x = orig, color = 'before')) +
+	geom_boxplot(data = during, aes(x = orig, color = 'during')) +
+	geom_boxplot(data = after[orig != bru], aes(x = orig, color = 'after')) +
 	scale_color_manual(limits = c('before', 'during', 'after'), values = c('green', 'red', 'blue'),
 					   name = NULL, labels = c('Before the attack', paste('While', bru, 'closed'),
 					   						   paste('After', bru, 'reopens'))) +
@@ -126,7 +128,7 @@ ggplot(data = NULL, aes(y = N.x + N.y)) +
 
 ```{r, results='asis'}
 for (airport in nearby) {
-	cat(paste('-', airport, 'traffic:\n\t*', paste0(sprintf('%+.1f', (afters[orig == airport, mean(N.x + N.y)] - befores[orig == airport, mean(N.x + N.y)]) / befores[orig == airport, mean(N.x + N.y)] * 100), '%'), 'while', bru, 'was closed with respect to before the attack\n\t*', paste0(sprintf('%+.1f', (durings[orig == airport, mean(N.x + N.y)] - befores[orig == airport, mean(N.x + N.y)]) / befores[orig == airport, mean(N.x + N.y)] * 100), '%'), 'after', bru, 'reopens with respect to before the attack\n'))
+	cat(paste('-', airport, 'traffic:\n\t*', paste0(sprintf('%+.1f', (after[orig == airport, mean(N.x + N.y)] - before[orig == airport, mean(N.x + N.y)]) / before[orig == airport, mean(N.x + N.y)] * 100), '%'), 'while', bru, 'was closed with respect to before the attack\n\t*', paste0(sprintf('%+.1f', (during[orig == airport, mean(N.x + N.y)] - before[orig == airport, mean(N.x + N.y)]) / before[orig == airport, mean(N.x + N.y)] * 100), '%'), 'after', bru, 'reopens with respect to before the attack\n'))
 }
 ```
 

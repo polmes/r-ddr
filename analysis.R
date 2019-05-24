@@ -10,7 +10,6 @@ event <- as.Date(event, '%Y/%m/%d')
 # Airlines
 airlines <- readRDS(ddr.path('airlines'))
 airlines <- airlines[month == paste0(format(event[1], '%Y-%m'), '-01')]
-# airlines <- airlines[month == unique(airlines$month)[which.min(abs(unique(airlines$month) - as.Date(event[1], '%Y-%m-%d')))]]
 
 # Fuel burn
 fuelburn <- 6.1264 # fuel burn [kg/NM] average of A320's and B737's for short-haul flights
@@ -39,27 +38,19 @@ ufo[, airline := NULL]
 ufo <- ufo[, .(id, orig, dest, name, aircraft, takeoff, landing)]
 setnames(ufo, c('id', 'orig', 'dest', 'airline', 'aircraft', 'takeoff', 'landing'))
 
-# Before/After
-# mind <- as.Date(paste(format(event[1], '%Y'), as.integer(format(event[1], '%m')) - 1, format(event[1], '%d'),
-# 					  sep = '-'))
-before <- merge(data$real$flights[orig == bru & as.Date(takeoff) < event[1], .N, by = as.Date(takeoff)],
-				data$real$flights[dest == bru & as.Date(landing) < event[1], .N, by = as.Date(landing)],
-				by = c('as.Date'))
-after <- merge(data$real$flights[orig == bru & as.Date(takeoff) > event[2], .N, by = as.Date(takeoff)],
-			   data$real$flights[dest == bru & as.Date(landing) > event[2], .N, by = as.Date(landing)],
-			   by = c('as.Date'))
-befores <- merge(data$real$flights[orig %in% nearby & as.Date(takeoff) < event[1], .N,
-								   by = .(as.Date(takeoff), orig)],
-				 data$real$flights[dest %in% nearby & as.Date(landing) < event[1], .N,
-				 				   by = .(as.Date(landing), dest)],
-				 by.x = c('as.Date', 'orig'), by.y = c('as.Date', 'dest'))
-durings <- merge(data$real$flights[orig %in% nearby & as.Date(takeoff) >= event[1] & as.Date(takeoff) <= event[2],
-								   .N, by = .(as.Date(takeoff), orig)],
-				 data$real$flights[dest %in% nearby & as.Date(landing) >= event[1] & as.Date(landing) <= event[2],
-				 				   .N, by = .(as.Date(landing), dest)],
-				 by.x = c('as.Date', 'orig'), by.y = c('as.Date', 'dest'))
-afters <- merge(data$real$flights[orig %in% nearby & as.Date(takeoff) > event[2], .N,
-								   by = .(as.Date(takeoff), orig)],
-				 data$real$flights[dest %in% nearby & as.Date(landing) > event[2], .N,
-				 				  by = .(as.Date(landing), dest)],
-				 by.x = c('as.Date', 'orig'), by.y = c('as.Date', 'dest'))
+# Before/During/After
+before <- merge(data$real$flights[orig %in% c(bru, nearby) & as.Date(takeoff) < event[1], .N,
+								  by = .(as.Date(takeoff), orig)],
+				data$real$flights[dest %in% c(bru, nearby) & as.Date(landing) < event[1], .N,
+								  by = .(as.Date(landing), dest)],
+				by.x = c('as.Date', 'orig'), by.y = c('as.Date', 'dest'))
+during <- merge(data$real$flights[orig %in% nearby & as.Date(takeoff) >= event[1] & as.Date(takeoff) <= event[2],
+								  .N, by = .(as.Date(takeoff), orig)],
+				data$real$flights[dest %in% nearby & as.Date(landing) >= event[1] & as.Date(landing) <= event[2],
+								  .N, by = .(as.Date(landing), dest)],
+				by.x = c('as.Date', 'orig'), by.y = c('as.Date', 'dest'))
+after <- merge(data$real$flights[orig %in% c(bru, nearby) & as.Date(takeoff) > event[2], .N,
+								 by = .(as.Date(takeoff), orig)],
+			   data$real$flights[dest %in% c(bru, nearby) & as.Date(landing) > event[2], .N,
+								 by = .(as.Date(landing), dest)],
+			   by.x = c('as.Date', 'orig'), by.y = c('as.Date', 'dest'))
