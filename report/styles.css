@@ -1,0 +1,18 @@
+#header {
+	text-align: center;
+}
+
+#header > .title {
+	font-size: 44px;
+	font-weight: bold;
+}
+
+#header > .subtitle {
+	font-size: 30px;
+}
+
+#header > .author {
+	display: inline-block;
+	width: 30%;
+	margin: 15px 5px;
+}

@@ -1,14 +1,10 @@
 ---
-title: '<header style="text-align: center">
-			<h1 style="font-weight: bold; font-size: 44px" class="toc-ignore">2016 Brussels Bombings</h1>
-			<h2 class="toc-ignore">Air Traffic Analysis</h2>
-		</header>'
-author: '<div style="text-align: center">
-			<span style="display: inline-block; width: 30%; margin: 0 5px">[Ramiro Balado Ordax](https://github.com/Qjammer)</span>
-			<span style="display: inline-block; width: 30%; margin: 0 5px">[Alejandro Hernández Rubio](https://github.com/Shyryuu)</span>
-			<span style="display: inline-block; width: 30%; margin: 0 5px">[Pol Mesalles Ripoll](https://github.com/polmes)</span>
-		</div>'
-# date: "DD/MM/YYYY"
+title: '2016 Brussels Bombings'
+subtitle: 'Air Traffic Analysis'
+author:
+- '[Ramiro Balado Ordax](https://github.com/Qjammer)'
+- '[Alejandro Hernández Rubio](https://github.com/Shyryuu)'
+- '[Pol Mesalles Ripoll](https://github.com/polmes)'
 output:
     rmarkdown::html_document:
         theme: cosmo
@@ -16,6 +12,7 @@ output:
         number_sections: true
         toc: true
         toc_float: true
+        css: styles.css
 ---
 
 ```{r setup, include = FALSE}
