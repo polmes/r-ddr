@@ -54,3 +54,19 @@ after <- merge(data$real$flights[orig %in% c(bru, nearby) & as.Date(takeoff) > e
 			   data$real$flights[dest %in% c(bru, nearby) & as.Date(landing) > event[2], .N,
 								 by = .(as.Date(landing), dest)],
 			   by.x = c('as.Date', 'orig'), by.y = c('as.Date', 'dest'))
+
+# Delays
+depdel <- merge(data$real$flights[orig %in% c(bru, nearby), .(id, orig, takeoff)],
+				data$plan$flights[orig %in% c(bru, nearby), .(id, takeoff)], by = c('id'))
+depdel[, delay := as.numeric(takeoff.x - takeoff.y)]
+depdel[, c('id', 'takeoff.y') := NULL]
+depdel <- depdel[, round(mean(delay)), by = .(as.Date(takeoff.x), orig)]
+arrdel <- merge(data$real$flights[dest %in% c(bru, nearby), .(id, dest, landing)],
+				data$plan$flights[dest %in% c(bru, nearby), .(id, landing)], by = c('id'))
+arrdel[, delay := as.numeric(landing.x - landing.y)]
+arrdel[, c('id', 'landing.y') := NULL]
+arrdel <- arrdel[, round(mean(delay)), by = .(as.Date(landing.x), dest)]
+lapply(list(depdel, arrdel), setnames, c('date', 'airport', 'delay'))
+delays <- merge(depdel, arrdel, by = c('date', 'airport'))
+rm(depdel, arrdel)
+setnames(delays, c('delay.x', 'delay.y'), c('depdel', 'arrdel'))

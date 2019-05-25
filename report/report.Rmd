@@ -122,6 +122,7 @@ ggplot(data = NULL, aes(y = N.x + N.y)) +
 	scale_color_manual(limits = c('before', 'during', 'after'), values = c('green', 'red', 'blue'),
 					   name = NULL, labels = c('Before the attack', paste('While', bru, 'closed'),
 					   						   paste('After', bru, 'reopens'))) +
+	scale_x_discrete(limits = nearby) +
 	labs(title = 'Average Daily Flights in Nearby Airports', x = NULL, y = 'Number of Flights') +
 	theme(plot.title = element_text(hjust = 0.5), legend.position = 'bottom')
 ```
@@ -132,11 +133,56 @@ for (airport in nearby) {
 }
 ```
 
-## Delays in nearby airports
+## Delays
 
-- Delays on each airport vs. time (per hour)
-- Boxplot (mean + sigma) comparing average delays on each airport (while EBBR closed)
-- Find average delay before/during/after
+```{r, fig.align='center'}
+htmltools::tagList(lapply(c(bru, nearby), function(icao) {
+	dygraph(delays[airport == icao, .(date, depdel, arrdel)],
+			main = paste('Average Daily Delays at', icao),
+			ylab = paste('Delay (seconds)'),
+			group = 'delay',
+			width = '100%', height = '250px') %>%
+		dySeries('depdel', label = paste('Delay in Departures')) %>%
+		dySeries('arrdel', label = paste('Delay in Arrivals')) %>%
+		dyRangeSelector() %>%
+		dyOptions(colors = c('royalblue', 'coral')) %>%
+		dyLegend(width = '380') %>%
+		dyEvent(event[1], 'Airport closes', labelLoc = 'bottom') %>%
+		dyEvent(event[2], 'Airport reopens', labelLoc = 'bottom')
+}))
+```
+
+```{r, fig.align='center'}
+ggplot(data = NULL, aes(y = depdel)) +
+	geom_boxplot(data = delays[date < event[1]], aes(x = airport, color = 'before')) +
+	geom_boxplot(data = delays[date >= event[1] & date <= event[2]], aes(x = airport, color = 'during')) +
+	geom_boxplot(data = delays[date > event[2]], aes(x = airport, color = 'after')) +
+	scale_color_manual(limits = c('before', 'during', 'after'), values = c('green', 'red', 'blue'),
+					   name = NULL, labels = c('Before the attack', paste('While', bru, 'closed'),
+					   						   paste('After', bru, 'reopens'))) +
+	scale_x_discrete(limits = c(bru, nearby)) +
+	labs(title = 'Average Daily Departure Delays', x = NULL, y = 'Delay (seconds)') +
+	theme(plot.title = element_text(hjust = 0.5), legend.position = 'bottom')
+```
+
+```{r, fig.align='center'}
+ggplot(data = NULL, aes(y = arrdel)) +
+	geom_boxplot(data = delays[date < event[1]], aes(x = airport, color = 'before')) +
+	geom_boxplot(data = delays[date >= event[1] & date <= event[2]], aes(x = airport, color = 'during')) +
+	geom_boxplot(data = delays[date > event[2]], aes(x = airport, color = 'after')) +
+	scale_color_manual(limits = c('before', 'during', 'after'), values = c('green', 'red', 'blue'),
+					   name = NULL, labels = c('Before the attack', paste('While', bru, 'closed'),
+					   						   paste('After', bru, 'reopens'))) +
+	scale_x_discrete(limits = c(bru, nearby)) +
+	labs(title = 'Average Daily Arrival Delays', x = NULL, y = 'Delay (seconds)') +
+	theme(plot.title = element_text(hjust = 0.5), legend.position = 'bottom')
+```
+
+```{r, results='asis'}
+for (icao in nearby) {
+	cat(paste('-', icao, 'delays:\n\t- Departures:\n\t\t*', paste0(sprintf('%+.1f', (delays[airport == icao & (date >= event[1] & date <= event[2]), mean(depdel)] - delays[airport == icao & date < event[1], mean(depdel)]) / delays[airport == icao & date < event[1], mean(depdel)] * 100), '%'), 'while', bru, 'was closed with respect to before the attack\n\t\t*', paste0(sprintf('%+.1f', (delays[airport == icao & date > event[2], mean(depdel)] - delays[airport == icao & date < event[1], mean(depdel)]) / delays[airport == icao & date < event[1], mean(depdel)] * 100), '%'), 'after', bru, 'reopens with respect to before the attack\n\t- Arrivals:\n\t\t*', paste0(sprintf('%+.1f', (delays[airport == icao & (date >= event[1] & date <= event[2]), mean(arrdel)] - delays[airport == icao & date < event[1], mean(arrdel)]) / delays[airport == icao & date < event[1], mean(arrdel)] * 100), '%'), 'while', bru, 'was closed with respect to before the attack\n\t\t*', paste0(sprintf('%+.1f', (delays[airport == icao & date > event[2], mean(arrdel)] - delays[airport == icao & date < event[1], mean(arrdel)]) / delays[airport == icao & date < event[1], mean(arrdel)] * 100), '%'), 'after', bru, 'reopens with respect to before the attack\n'))
+}
+```
 
 # Airlines
 
