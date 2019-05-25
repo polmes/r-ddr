@@ -188,3 +188,19 @@ for (icao in c(bru, nearby)) {
 
 - Find from total flights the airlines that were most affected (from those that travel to EBBR)
 - Average delays (while EBBR closed) by airline
+
+```{r}
+datatable(fucked, options = list(order = list(list(6, 'asc')), dom = 'tp', columnDefs = list(list(className = 'dt-center', targets = '_all'))), colnames = c('Airline', 'ICAO Code', 'Flights Before', 'Flights During', 'Flights After', 'Delta During', 'Delta After', '% During', '% After')) %>%
+	formatPercentage(columns = c('bd_rel', 'ba_rel'), digits = 1)
+```
+
+```{r, fig.align='center'}
+dygraph(fuckedplot,
+		main = 'Most Affected Airlines',
+		ylab = 'Number of Flights',
+		width = '100%') %>%
+	dyRangeSelector() %>%
+	dyLegend(width = '400') %>%
+	dyEvent(event[1], 'Airport closes', labelLoc = 'bottom') %>%
+	dyEvent(event[2], 'Airport reopens', labelLoc = 'bottom')
+```

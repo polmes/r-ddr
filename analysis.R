@@ -10,6 +10,7 @@ event <- as.Date(event, '%Y/%m/%d')
 # Airlines
 airlines <- readRDS(ddr.path('airlines'))
 airlines <- airlines[month == paste0(format(event[1], '%Y-%m'), '-01')]
+airlines <- airlines[, name := trimws(name)]
 
 # Fuel burn
 fuelburn <- 6.1264 # fuel burn [kg/NM] average of A320's and B737's for short-haul flights
@@ -70,3 +71,27 @@ lapply(list(depdel, arrdel), setnames, c('date', 'airport', 'delay'))
 delays <- merge(depdel, arrdel, by = c('date', 'airport'))
 rm(depdel, arrdel)
 setnames(delays, c('delay.x', 'delay.y'), c('depdel', 'arrdel'))
+
+# Affected Airlines
+fucked <- data$real$flights[, .N, by = .(as.Date(takeoff), airline)]
+fucked <- merge(merge(fucked[as.Date < event[1], round(mean(N)), by = airline],
+					  fucked[as.Date >= event[1] & as.Date <= event[2], round(mean(N)), by = airline],
+					  by = c('airline')),
+				fucked[as.Date > event[2], round(mean(N)), by = airline],
+				by = c('airline'))
+fucked[airline %in% unique(data$real$flights[orig == bru | dest == bru, airline])]
+fucked <- merge(fucked, airlines[, .(ICAO, name)], by.x = c('airline'), by.y = c('ICAO'))
+setnames(fucked, c('icao', 'before', 'during', 'after', 'airline'))
+fucked <- fucked[, .(airline, icao, before, during, after)]
+fucked[, bd_abs := during - before]
+fucked[, ba_abs := after - before]
+fucked[, bd_rel := (during - before) / before]
+fucked[, ba_rel := (after - before) / before]
+
+# Most Affected Airlines
+mostfucked <- fucked[order(bd_abs), icao][1:5]
+fuckedplot <- data$real$flights[airline %in% mostfucked & as.Date(takeoff) >= day1 & as.Date(takeoff) <= day2,
+								.N, by = .(as.Date(takeoff), airline)]
+fuckedplot <- reshape(fuckedplot, timevar = 'airline', idvar = 'as.Date', direction = 'wide')
+fuckedplot[is.na(fuckedplot)] = 0 # deal with <NA> values
+setnames(fuckedplot, c('date', mostfucked))
