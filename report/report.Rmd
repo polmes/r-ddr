@@ -51,7 +51,7 @@ Bizarrely, despite the airport supposedly being closed from March 22 to April 3,
 
 ```{r}
 datatable(ufo[orig == bru, .(dest, airline, aircraft, takeoff, landing)], options = list(dom = 'tp', columnDefs = list(list(className = 'dt-center', targets = '_all'))), colnames = c('Destination', 'Airline', 'Aircraft', 'Departure', 'Arrival')) %>%
-	formatDate(columns = c('takeoff', 'landing'), method = 'toLocaleString')
+	formatDate(columns = c('takeoff', 'landing'), method = 'toLocaleString', params = list('ca-ES'))
 ```
 
 ### EBBR Arrivals {-}
