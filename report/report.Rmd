@@ -129,7 +129,7 @@ ggplot(data = NULL, aes(y = N.x + N.y)) +
 
 ```{r, results='asis'}
 for (airport in nearby) {
-	cat(paste('-', airport, 'traffic:\n\t*', paste0(sprintf('%+.1f', (during[orig == airport, mean(N.x + N.y)] - before[orig == airport, mean(N.x + N.y)]) / before[orig == airport, mean(N.x + N.y)] * 100), '%'), 'while', bru, 'was closed with respect to before the attack\n\t*', paste0(sprintf('%+.1f', (after[orig == airport, mean(N.x + N.y)] - before[orig == airport, mean(N.x + N.y)]) / before[orig == airport, mean(N.x + N.y)] * 100), '%'), 'after', bru, 'reopens with respect to before the attack\n'))
+	cat(paste('-', airport, 'traffic:\n\t*', paste0(sprintf('%+.1f', during[orig == airport, mean(N.x + N.y)] / before[orig == airport, mean(N.x + N.y)] * 100 - 100), '%'), 'while', bru, 'was closed with respect to before the attack\n\t*', paste0(sprintf('%+.1f', after[orig == airport, mean(N.x + N.y)] / before[orig == airport, mean(N.x + N.y)] * 100 - 100), '%'), 'after', bru, 'reopens with respect to before the attack\n'))
 }
 ```
 
@@ -180,7 +180,7 @@ ggplot(data = NULL, aes(y = arrdel)) +
 
 ```{r, results='asis'}
 for (icao in c(bru, nearby)) {
-	cat(paste('-', icao, 'delays:\n\t- Departures:\n\t\t*', paste0(sprintf('%+.1f', (delays[airport == icao & (date >= event[1] & date <= event[2]), mean(depdel)] - delays[airport == icao & date < event[1], mean(depdel)]) / delays[airport == icao & date < event[1], mean(depdel)] * 100), '%'), 'while', bru, 'was closed with respect to before the attack\n\t\t*', paste0(sprintf('%+.1f', (delays[airport == icao & date > event[2], mean(depdel)] - delays[airport == icao & date < event[1], mean(depdel)]) / delays[airport == icao & date < event[1], mean(depdel)] * 100), '%'), 'after', bru, 'reopens with respect to before the attack\n\t- Arrivals:\n\t\t*', paste0(sprintf('%+.1f', (delays[airport == icao & (date >= event[1] & date <= event[2]), mean(arrdel)] - delays[airport == icao & date < event[1], mean(arrdel)]) / delays[airport == icao & date < event[1], mean(arrdel)] * 100), '%'), 'while', bru, 'was closed with respect to before the attack\n\t\t*', paste0(sprintf('%+.1f', delays[airport == icao & date > event[2], mean(arrdel)] / delays[airport == icao & date < event[1], mean(arrdel)] * 100 + 100), '%'), 'after', bru, 'reopens with respect to before the attack\n'))
+	cat(paste('-', icao, 'delays:\n\t- Departures:\n\t\t*', paste0(sprintf('%+.1f', delays[airport == icao & (date >= event[1] & date <= event[2]), mean(depdel)] / delays[airport == icao & date < event[1], mean(depdel)] * 100 - 100), '%'), 'while', bru, 'was closed with respect to before the attack\n\t\t*', paste0(sprintf('%+.1f', delays[airport == icao & date > event[2], mean(depdel)] / delays[airport == icao & date < event[1], mean(depdel)] * 100 - 100), '%'), 'after', bru, 'reopens with respect to before the attack\n\t- Arrivals:\n\t\t*', paste0(sprintf('%+.1f', delays[airport == icao & (date >= event[1] & date <= event[2]), mean(arrdel)] / delays[airport == icao & date < event[1], mean(arrdel)] * 100 - 100), '%'), 'while', bru, 'was closed with respect to before the attack\n\t\t*', paste0(sprintf('%+.1f', delays[airport == icao & date > event[2], mean(arrdel)] / delays[airport == icao & date < event[1], mean(arrdel)] * 100 - 100), '%'), 'after', bru, 'reopens with respect to before the attack\n'))
 }
 ```
 
