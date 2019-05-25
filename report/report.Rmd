@@ -81,7 +81,7 @@ ddr.map(data$real$routes[id %in% div[, id]], autocenter = FALSE)
 ### Interactive Map {-}
 
 ```{r, fig.align='center'}
-ddr.jsmap(data$real$routes[id %in% div[, id]], div, coord)
+ddr.jsmap(data$real$routes[id %in% div[, id]], div, coord, data$plan$routes[id %in% div[, id]])
 ```
 
 ### Animation {-}

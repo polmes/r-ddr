@@ -1,4 +1,4 @@
-ddr.jsmap <- function(routes, info, coord) {
+ddr.jsmap <- function(routes, info, coord, plan = NULL) {
 	map <- leaflet(width = '100%') %>%
 		addTiles() %>%
 		addProviderTiles(providers$Esri.WorldGrayCanvas) %>%
@@ -22,7 +22,27 @@ ddr.jsmap <- function(routes, info, coord) {
 						 weight = 2, opacity = 1,
 						 highlightOptions = highlightOptions(weight = 5),
 						 label = HTML(paste0('<strong>', infox[1, orig], ' &ndash; ', infox[1, dest], '</strong>',
-						 					 '<br>', infox[1, airline])))
+						 					 '<br>', infox[1, airline])),
+						 group = 'Real')
+	}
+
+	if (!is.null(plan)) {
+		for (idx in unique(plan[, id])) {
+			infox <- info[id == idx]
+			map <- map %>%
+				addPolylines(data = plan[id == idx], lat = ~lat, lng = ~lon,
+							 color = paste0('#', paste(as.hexmode(c(col2rgb(colors(distinct = TRUE)[idx %% 502 + 1]))),
+							 						  collapse = '')),
+							 weight = 2, opacity = 1,
+							 highlightOptions = highlightOptions(weight = 5),
+							 label = HTML(paste0('<strong>', infox[1, orig], ' &ndash; ', infox[1, dest], '</strong>',
+							 					'<br>', infox[1, airline])),
+							 group = 'Plan')
+		}
+
+		map <- map %>%
+			addLayersControl(baseGroups = c('Real', 'Plan'),
+							 options = layersControlOptions(collapsed = FALSE))
 	}
 
 	# print(map)
