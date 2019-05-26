@@ -251,4 +251,6 @@ dygraph(fuckedplot,
 
 The R code developed for this project and used to render this report is freely available on [GitHub](https://github.com/polmes/r-ddr) under an MIT license.
 
-During the development of this study, one of the main issues has been the unreliability of the DDR2 platform, generating incomplete data at times, or simply not allowing all of us to generate downloads, no matter the time. At least RStudio will be [better](https://github.com/rstudio/rstudio/pull/4809) soon.
+During the development of this study, one of the main issues has been the unreliability of the DDR2 platform, generating incomplete data at times, or simply not allowing all of us to generate downloads, no matter the time.
+
+At least RStudio will be [better](https://github.com/rstudio/rstudio/pull/4809) soon with our help.
