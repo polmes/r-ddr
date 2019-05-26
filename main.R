@@ -48,10 +48,10 @@ if (file.exists(file)) {
 	names(data) <- names
 
 	# Merge tables + Ensure uniqueness
-	data <- list(real = list(flights = unique(rbindlist(lapply(data, function(x) x$real$flights))),
+	data <- list(real = list(flights = unique(rbindlist(lapply(data, function(x) x$real$flights)), by = c('id')),
 							 routes = unique(rbindlist(lapply(data, function(x) x$real$routes)))),
-				 plan = list(flights = unique(rbindlist(lapply(data, function(x) x$plan$flights))),
-				 			routes = unique(rbindlist(lapply(data, function(x) x$plan$routes)))))
+				 plan = list(flights = unique(rbindlist(lapply(data, function(x) x$plan$flights)), by = c('id')),
+				 			 routes = unique(rbindlist(lapply(data, function(x) x$plan$routes)))))
 
 	# Save for next time
 	message(paste('Saving to full file:', basename(file)))
