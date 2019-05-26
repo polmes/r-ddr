@@ -3,6 +3,7 @@ bru <- 'EBBR' # airport ICAO code
 coord <- c(50.90139, 4.484444) # location (lat, lon)
 event <- c('2016/03/22', '2016/04/03') # interval (closes, reopens)
 nearby <- c('EBCI', 'EBLG', 'EBAW', 'EHEH', 'LFQQ') # nearby airports
+bcn <- 'LEBL' # airport for comparison
 
 # Convert to dates
 event <- as.Date(event, '%Y/%m/%d')
@@ -44,19 +45,19 @@ ufo <- ufo[, .(id, orig, dest, name, aircraft, takeoff, landing)]
 setnames(ufo, c('id', 'orig', 'dest', 'airline', 'aircraft', 'takeoff', 'landing'))
 
 # Before/During/After
-before <- merge(data$real$flights[orig %in% c(bru, nearby) & as.Date(takeoff) < event[1], .N,
+before <- merge(data$real$flights[orig %in% c(bru, nearby, bcn) & as.Date(takeoff) < event[1], .N,
 								  by = .(as.Date(takeoff), orig)],
-				data$real$flights[dest %in% c(bru, nearby) & as.Date(landing) < event[1], .N,
+				data$real$flights[dest %in% c(bru, nearby, bcn) & as.Date(landing) < event[1], .N,
 								  by = .(as.Date(landing), dest)],
 				by.x = c('as.Date', 'orig'), by.y = c('as.Date', 'dest'))
-during <- merge(data$real$flights[orig %in% nearby & as.Date(takeoff) >= event[1] & as.Date(takeoff) <= event[2],
+during <- merge(data$real$flights[orig %in% c(bru, nearby, bcn) & as.Date(takeoff) >= event[1] & as.Date(takeoff) <= event[2],
 								  .N, by = .(as.Date(takeoff), orig)],
-				data$real$flights[dest %in% nearby & as.Date(landing) >= event[1] & as.Date(landing) <= event[2],
+				data$real$flights[dest %in% c(bru, nearby, bcn) & as.Date(landing) >= event[1] & as.Date(landing) <= event[2],
 								  .N, by = .(as.Date(landing), dest)],
 				by.x = c('as.Date', 'orig'), by.y = c('as.Date', 'dest'))
-after <- merge(data$real$flights[orig %in% c(bru, nearby) & as.Date(takeoff) > event[2], .N,
+after <- merge(data$real$flights[orig %in% c(bru, nearby, bcn) & as.Date(takeoff) > event[2], .N,
 								 by = .(as.Date(takeoff), orig)],
-			   data$real$flights[dest %in% c(bru, nearby) & as.Date(landing) > event[2], .N,
+			   data$real$flights[dest %in% c(bru, nearby, bcn) & as.Date(landing) > event[2], .N,
 								 by = .(as.Date(landing), dest)],
 			   by.x = c('as.Date', 'orig'), by.y = c('as.Date', 'dest'))
 

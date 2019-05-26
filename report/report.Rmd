@@ -27,14 +27,18 @@ knitr::opts_chunk$set(echo = FALSE)
 ddr.times(data$real$flights, bru, event)
 ```
 
-- Traffic before the attacks: `r floor(before[orig == bru, mean(N.x + N.y)])` average daily flights (including departures and arrivals)
-- Traffic after the attacks: `r floor(after[orig == bru, mean(N.x + N.y)])` average daily flights (including departures and arrivals)
+- Traffic before the attacks: `r round(before[orig == bru, mean(N.x + N.y)])` average daily flights (including departures and arrivals)
+- Traffic after the attacks: `r round(after[orig == bru, mean(N.x + N.y)])` average daily flights (including departures and arrivals)
 
 Comparing the traffic evolution to another European airport, like Barcelona (IATA: BCN, ICAO: LEBL)...
 
 ```{r, fig.align='center'}
-ddr.times(data$real$flights, 'LEBL', event) # for comparison: BCN
+ddr.times(data$real$flights, bcn, event)
 ```
+
+- Average traffic before the attacks: `r round(before[orig == bcn, mean(N.x + N.y)])` flights per day (including departures and arrivals)
+- Average traffic while `r bru` was closed: `r round(during[orig == bcn, mean(N.x + N.y)])` flights per day (including departures and arrivals, `r  sprintf('%+.1f', during[orig == bcn, mean(N.x + N.y)] / before[orig == bcn, mean(N.x + N.y)] * 100 - 100)`%)
+- Average traffic after `r bru` reopens: `r after[orig == bcn, mean(N.x + N.y)]` flights per day (including departures and arrivals, `r  sprintf('%+.1f', after[orig == bcn, mean(N.x + N.y)] / before[orig == bcn, mean(N.x + N.y)] * 100 - 100)`%)
 
 Even one month after the event, the traffic is still lower. Overall, the traffic is reduced in a `r format(abs((after[orig == bru, mean(N.x + N.y)] - before[orig == bru, mean(N.x + N.y)]) / before[orig == bru, mean(N.x + N.y)]) * 100, digits = 3)`% following the tragic events. Further details can be extracted from the figure below:
 
@@ -59,7 +63,7 @@ dygraph(eu, main = 'European Air Traffic Evolution', ylab = 'Total Number of Fli
 	dyEvent(event[2], 'Airport reopens', labelLoc = 'bottom')
 ```
 
-- Average traffic before: `r format(round(mean(eu[date < event[1], N])))` flights per day
+- Average traffic before the attacks: `r format(round(mean(eu[date < event[1], N])))` flights per day
 - Average traffic while `r bru` was closed: `r format(round(mean(eu[date >= event[1] & date <= event[2], N])))` flights per day (`r  sprintf('%+.1f', mean(eu[date >= event[1] & date <= event[2], N]) / mean(eu[date < event[1], N]) * 100 - 100)`%)
 - Average traffic after `r bru` reopens: `r format(round(mean(eu[date > event[2], N])))` flights per day (`r  sprintf('%+.1f', mean(eu[date > event[2], N]) / mean(eu[date < event[1], N]) * 100 - 100)`%)
 
@@ -144,9 +148,9 @@ htmltools::tagList(lapply(nearby, function(airport) {
 
 ```{r, fig.align='center'}
 ggplot(data = NULL, aes(y = N.x + N.y)) +
-	geom_boxplot(data = before[orig != bru], aes(x = orig, color = 'before')) +
-	geom_boxplot(data = during, aes(x = orig, color = 'during')) +
-	geom_boxplot(data = after[orig != bru], aes(x = orig, color = 'after')) +
+	geom_boxplot(data = before[orig %in% nearby], aes(x = orig, color = 'before')) +
+	geom_boxplot(data = during[orig %in% nearby], aes(x = orig, color = 'during')) +
+	geom_boxplot(data = after[orig %in% nearby], aes(x = orig, color = 'after')) +
 	scale_color_manual(limits = c('before', 'during', 'after'), values = c('green', 'red', 'blue'),
 					   name = NULL, labels = c('Before the attack', paste('While', bru, 'closed'),
 					   						   paste('After', bru, 'reopens'))) +
