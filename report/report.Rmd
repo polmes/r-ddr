@@ -51,6 +51,18 @@ ggplot(data = NULL, aes(y = N.x + N.y)) +
 	theme(plot.title = element_text(hjust = 0.5))
 ```
 
+```{r, fig.align='center'}
+dygraph(eu, main = 'European Air Traffic Evolution', ylab = 'Total Number of Flights', width = '100%') %>%
+	dyRangeSelector() %>%
+	dyLegend(width = '160') %>%
+	dyEvent(event[1], 'Airport closes', labelLoc = 'bottom') %>%
+	dyEvent(event[2], 'Airport reopens', labelLoc = 'bottom')
+```
+
+- Average traffic before: `r format(round(mean(eu[date < event[1], N])))` flights per day
+- Average traffic while `r bru` was closed: `r format(round(mean(eu[date >= event[1] & date <= event[2], N])))` flights per day (`r  sprintf('%+.1f', mean(eu[date >= event[1] & date <= event[2], N]) / mean(eu[date < event[1], N]) * 100 - 100)`%)
+- Average traffic after `r bru` reopens: `r format(round(mean(eu[date > event[2], N])))` flights per day (`r  sprintf('%+.1f', mean(eu[date > event[2], N]) / mean(eu[date < event[1], N]) * 100 - 100)`%)
+
 ```{r, message=FALSE, results=FALSE}
 euname <- 'belgium'
 eufile <- file.path('..', 'data', paste0(euname, '.gif'))
