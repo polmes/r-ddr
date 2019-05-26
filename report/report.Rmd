@@ -50,14 +50,14 @@ Bizarrely, despite the airport supposedly being closed from March 22 to April 3,
 ### EBBR Departures {-}
 
 ```{r}
-datatable(ufo[orig == bru, .(dest, airline, aircraft, takeoff, landing)], options = list(dom = 'tp', columnDefs = list(list(className = 'dt-center', targets = '_all'))), colnames = c('Destination', 'Airline', 'Aircraft', 'Departure', 'Arrival')) %>%
+datatable(ufo[orig == bru, .(dest, airline, aircraft, takeoff, landing)], options = list(dom = 'tp', columnDefs = list(list(className = 'dt-center', targets = '_all'))), rownames = FALSE, colnames = c('Destination', 'Airline', 'Aircraft', 'Departure', 'Arrival')) %>%
 	formatDate(columns = c('takeoff', 'landing'), method = 'toLocaleString', params = list('ca-ES'))
 ```
 
 ### EBBR Arrivals {-}
 
 ```{r}
-datatable(ufo[dest == bru, .(orig, airline, aircraft, takeoff, landing)], options = list(dom = 'tp', columnDefs = list(list(className = 'dt-center', targets = '_all'))), colnames = c('Origin', 'Airline', 'Aircraft', 'Departure', 'Arrival')) %>%
+datatable(ufo[dest == bru, .(orig, airline, aircraft, takeoff, landing)], options = list(dom = 'tp', columnDefs = list(list(className = 'dt-center', targets = '_all'))), rownames = FALSE, colnames = c('Origin', 'Airline', 'Aircraft', 'Departure', 'Arrival')) %>%
 	formatDate(columns = c('takeoff', 'landing'), method = 'toLocaleString')
 ```
 
@@ -66,7 +66,7 @@ datatable(ufo[dest == bru, .(orig, airline, aircraft, takeoff, landing)], option
 On the day of the event, March 22, 2016, there were a total of `r div[, .N]` diverted flights that had intended to land on Brussels Airport (EBBR).
 
 ```{r, fig.align='center'}
-datatable(div[, .(orig, dest, airline, diff, fuel)], options = list(dom = 'tp', columnDefs = list(list(className = 'dt-center', targets = '_all'))), colnames = c('Origin', 'Destination', 'Airline', 'Distance Delta (NM)', 'Fuel Delta (kg)')) %>%
+datatable(div[, .(orig, dest, airline, diff, fuel)], options = list(dom = 'tp', columnDefs = list(list(className = 'dt-center', targets = '_all'))), rownames = FALSE, colnames = c('Origin', 'Destination', 'Airline', 'Distance Delta (NM)', 'Fuel Delta (kg)')) %>%
 	formatRound(columns = c('diff', 'fuel'), digits = 2)
 ```
 
@@ -220,7 +220,7 @@ for (icao in c(bru, nearby)) {
 # Airlines
 
 ```{r}
-datatable(fucked, options = list(order = list(list(6, 'asc')), dom = 'tp', columnDefs = list(list(className = 'dt-center', targets = '_all'))), colnames = c('Airline', 'ICAO Code', 'Flights Before', 'Flights During', 'Flights After', 'Delta During', 'Delta After', '% During', '% After')) %>%
+datatable(fucked, options = list(order = list(list(6, 'asc')), dom = 'tp', columnDefs = list(list(className = 'dt-center', targets = '_all'))), rownames = FALSE, colnames = c('Airline', 'ICAO Code', 'Flights Before', 'Flights During', 'Flights After', 'Delta During', 'Delta After', '% During', '% After')) %>%
 	formatPercentage(columns = c('bd_rel', 'ba_rel'), digits = 1)
 ```
 
