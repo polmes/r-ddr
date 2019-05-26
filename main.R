@@ -1,6 +1,6 @@
 # Input date range
 day1 <- '2016/02/22'
-day2 <- '2016/04/26'
+day2 <- '2016/05/03'
 
 # Define required packages
 requirements <- c('data.table', 'fasttime', 'ggplot2', 'rstudioapi', 'htmltools', 'xts',
