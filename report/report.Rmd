@@ -30,6 +30,12 @@ ddr.times(data$real$flights, bru, event)
 - Traffic before the attacks: `r floor(before[orig == bru, mean(N.x + N.y)])` average daily flights (including departures and arrivals)
 - Traffic after the attacks: `r floor(after[orig == bru, mean(N.x + N.y)])` average daily flights (including departures and arrivals)
 
+Comparing the traffic evolution to another European airport, like Barcelona (IATA: BCN, ICAO: LEBL)...
+
+```{r, fig.align='center'}
+ddr.times(data$real$flights, 'LEBL', event) # for comparison: BCN
+```
+
 Even one month after the event, the traffic is still lower. Overall, the traffic is reduced in a `r format(abs((after[orig == bru, mean(N.x + N.y)] - before[orig == bru, mean(N.x + N.y)]) / before[orig == bru, mean(N.x + N.y)]) * 100, digits = 3)`% following the tragic events. Further details can be extracted from the figure below:
 
 ```{r, fig.align='center'}
