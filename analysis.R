@@ -15,6 +15,9 @@ airlines <- airlines[, name := trimws(name)]
 # Fuel burn
 fuelburn <- 6.1264 # fuel burn [kg/NM] average of A320's and B737's for short-haul flights
 
+# All European Traffic
+eu <- data$real$flights[as.Date(takeoff) >= day1 & as.Date(takeoff) <= day2, .N, by = as.Date(takeoff)]
+
 # Diverted flights
 div <- merge(data$real$flights[, .(id, as.Date(landing), orig, dest)],
 			 data$real$routes[, .SD[.N], by = id, .SDcols = c('pt')], by = c('id'))
