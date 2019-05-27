@@ -73,14 +73,14 @@ Bizarrely, despite the airport supposedly being closed from March 22nd to April 
 ### EBBR Departures {-}
 
 ```{r}
-datatable(ufo[orig == bru, .(dest, airline, aircraft, takeoff, landing)], options = list(dom = 'tp', columnDefs = list(list(className = 'dt-center', targets = '_all'))), rownames = FALSE, colnames = c('Destination', 'Airline', 'Aircraft', 'Departure', 'Arrival')) %>%
+datatable(ufo[orig == bru, .(dest, airline, aircraft, takeoff, landing)], options = list(order = list(list(3, 'asc')), dom = 'tp', columnDefs = list(list(className = 'dt-center', targets = '_all'))), rownames = FALSE, colnames = c('Destination', 'Airline', 'Aircraft', 'Departure', 'Arrival')) %>%
 	formatDate(columns = c('takeoff', 'landing'), method = 'toLocaleString', params = list('ca-ES'))
 ```
 
 ### EBBR Arrivals {-}
 
 ```{r}
-datatable(ufo[dest == bru, .(orig, airline, aircraft, takeoff, landing)], options = list(dom = 'tp', columnDefs = list(list(className = 'dt-center', targets = '_all'))), rownames = FALSE, colnames = c('Origin', 'Airline', 'Aircraft', 'Departure', 'Arrival')) %>%
+datatable(ufo[dest == bru, .(orig, airline, aircraft, takeoff, landing)], options = list(order = list(list(4, 'asc')), dom = 'tp', columnDefs = list(list(className = 'dt-center', targets = '_all'))), rownames = FALSE, colnames = c('Origin', 'Airline', 'Aircraft', 'Departure', 'Arrival')) %>%
 	formatDate(columns = c('takeoff', 'landing'), method = 'toLocaleString')
 ```
 
@@ -91,7 +91,7 @@ Judging by the tables above, the flights during these days appear to be from reg
 On the day of the bombing, March 22nd, 2016, there were a total of `r div[, .N]` diverted flights that had intended to land on Brussels Airport (EBBR):
 
 ```{r, fig.align='center'}
-datatable(div[, .(orig, dest, airline, diff, fuel)], options = list(dom = 'tp', columnDefs = list(list(className = 'dt-center', targets = '_all'))), rownames = FALSE, colnames = c('Origin', 'Destination', 'Airline', 'Distance Delta (NM)', 'Fuel Delta (kg)')) %>%
+datatable(div[, .(orig, dest, airline, diff, fuel)], options = list(order = list(list(1, 'asc')), dom = 'tp', columnDefs = list(list(className = 'dt-center', targets = '_all'))), rownames = FALSE, colnames = c('Origin', 'Destination', 'Airline', 'Distance Delta (NM)', 'Fuel Delta (kg)')) %>%
 	formatRound(columns = c('diff', 'fuel'), digits = 2)
 ```
 
@@ -282,7 +282,7 @@ ggplot(data = NULL, aes(y = arrdel)) +
 From an economical point of view, let’s look at the main airlines operating at Brussels Airport and analyze the evolution of flights before, during and after the incident. The table below summarizes these figures by presenting the average number of flights at each moment, as well as the absolute and relative differences:
 
 ```{r}
-datatable(fucked, options = list(order = list(list(6, 'asc')), dom = 'tp', columnDefs = list(list(className = 'dt-center', targets = '_all'))), rownames = FALSE, colnames = c('Airline', 'ICAO Code', 'Flights Before', 'Flights During', 'Flights After', 'Delta During', 'Delta After', '% During', '% After')) %>%
+datatable(fucked, options = list(order = list(list(5, 'asc'), list(2, 'desc')), dom = 'tp', columnDefs = list(list(className = 'dt-center', targets = '_all'))), rownames = FALSE, colnames = c('Airline', 'ICAO Code', 'Flights Before', 'Flights During', 'Flights After', 'Delta During', 'Delta After', '% During', '% After')) %>%
 	formatPercentage(columns = c('bd_rel', 'ba_rel'), digits = 1)
 ```
 
