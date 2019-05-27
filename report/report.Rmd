@@ -157,7 +157,7 @@ In this case, the increase in traffic volume is significantly higher given the a
 
 Therefore, we can conclude that the overall impact of the terrorist attack is higher than what can be interpreted directly from the European air traffic evolution, since the number of flights would have increased more if it weren't for the generated insecurity.
 
-Finally, the animation below showcases the flights over Belgium and its surrounding countries over the course of the day of the tragic events. It can be seen that there is no significant change regarding the country's air space:
+Finally, the animation below showcases the flights over Belgium and its surrounding countries over the course of the day of the tragic events. It can be seen that there is no significant change regarding the country's airspace:
 
 ```{r, message=FALSE, results=FALSE}
 euname <- 'belgium'
@@ -239,7 +239,7 @@ htmltools::tagList(lapply(c(bru, nearby), function(icao) {
 }))
 ```
 
-Note that there is a notable peak during the 20th of March, when an air traffic control strike over France paralyzed the french air space and caused numerous delays. Any flight that was scheduled to fly over France suffered from delays. In any case, that peak in the delays is not related to the incident being analyzed.
+Note that there is a notable peak during the 20th of March, when an air traffic control strike over France paralyzed the french airspace and caused numerous delays. Any flight that was scheduled to fly over France suffered from delays. In any case, that peak in the delays is not related to the incident being analyzed.
 
 As it can be seen in the graphs below and the means computed below, there is no relevant change in the delays of either arrivals or departures, during or after the incident. The data is mostly stochastic:
 
