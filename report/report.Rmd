@@ -84,6 +84,8 @@ datatable(ufo[dest == bru, .(orig, airline, aircraft, takeoff, landing)], option
 	formatDate(columns = c('takeoff', 'landing'), method = 'toLocaleString')
 ```
 
+## {- .toc-ignore}
+
 Judging by the tables above, the flights during these days appear to be from regular airlines. Some of them might be from cargo flights, but for some reason some of them appear to be short-haul routes.
 
 ## Diverted Flights {.tabset .tabset-fade}
