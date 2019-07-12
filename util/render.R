@@ -5,6 +5,6 @@ ddr.render <- function(file, dir = 'report', format = 'html') {
 		file.copy(rep, tmp)
 		rstudioapi::viewer(tmp)
 	} else if (format == 'pdf') {
-		system2(Sys.getenv('R_PDFVIEWER'), paste0(file.path(dir, tools::file_path_sans_ext(file)), '.pdf'))
+		system2(Sys.getenv('R_PDFVIEWER'), paste0(file.path(dir, tools::file_path_sans_ext(file)), '.', format))
 	}
 }
