@@ -5,8 +5,8 @@
 # Ignore 'data/' directory
 data/
 
-# Except for file 'airlines.RDS'
-!data/airlines.RDS
+# Except for help file
+!data/README.md
 
 # Ignore rendered HTML report
 report/report.html
