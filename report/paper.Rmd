@@ -68,20 +68,6 @@ ggplot(data = NULL, aes(y = N.x + N.y)) +
 
 Bizarrely, despite the airport supposedly being closed from March 22nd to April 3rd, the number of flights during the days following the terrorist attack is non-zero. Let's take a closer look at these flights:
 
-### EBBR Departures {-}
-
-```{r}
-datatable(ufo[orig == bru, .(dest, airline, aircraft, takeoff, landing)], options = list(order = list(list(3, 'asc')), dom = 'tp', columnDefs = list(list(className = 'dt-center', targets = '_all'))), rownames = FALSE, colnames = c('Destination', 'Airline', 'Aircraft', 'Departure', 'Arrival')) %>%
-	formatDate(columns = c('takeoff', 'landing'), method = 'toLocaleString', params = list('ca-ES'))
-```
-
-### EBBR Arrivals {-}
-
-```{r}
-datatable(ufo[dest == bru, .(orig, airline, aircraft, takeoff, landing)], options = list(order = list(list(4, 'asc')), dom = 'tp', columnDefs = list(list(className = 'dt-center', targets = '_all'))), rownames = FALSE, colnames = c('Origin', 'Airline', 'Aircraft', 'Departure', 'Arrival')) %>%
-	formatDate(columns = c('takeoff', 'landing'), method = 'toLocaleString')
-```
-
 ## {- .toc-ignore}
 
 Judging by the tables above, the flights during these days appear to be from regular airlines. Some of them might be from cargo flights, but for some reason some of them appear to be short-haul routes.
@@ -89,11 +75,6 @@ Judging by the tables above, the flights during these days appear to be from reg
 ## Diverted Flights {.tabset .tabset-fade}
 
 On the day of the bombing, March 22nd, 2016, there were a total of `r div[, .N]` diverted flights that had intended to land on Brussels Airport (EBBR):
-
-```{r, fig.align='center'}
-datatable(div[, .(orig, dest, airline, diff, fuel)], options = list(order = list(list(1, 'asc')), dom = 'tp', columnDefs = list(list(className = 'dt-center', targets = '_all'))), rownames = FALSE, colnames = c('Origin', 'Destination', 'Airline', 'Distance Delta (NM)', 'Fuel Delta (kg)')) %>%
-	formatRound(columns = c('diff', 'fuel'), digits = 2)
-```
 
 On average, airlines actually saved `r format(abs(div[, mean(fuel)]), digits = 3)` kg of fuel by diverting flights to airports closer to the origin point. These savings are so minimal that it had no appreciable effect either on the airlines costs or the environmental impact. However, costs related to those diverted flights such as compensations to passengers strongly outweigh those related to fuel consumption.
 
@@ -251,11 +232,6 @@ ggplot(data = NULL, aes(y = arrdel)) +
 # Airlines
 
 From an economical point of view, let’s look at the main airlines operating at Brussels Airport and analyze the evolution of flights before, during and after the incident. The table below summarizes these figures by presenting the average number of flights at each moment, as well as the absolute and relative differences:
-
-```{r}
-datatable(fucked, options = list(order = list(list(5, 'asc'), list(2, 'desc')), dom = 'tp', columnDefs = list(list(className = 'dt-center', targets = '_all'))), rownames = FALSE, colnames = c('Airline', 'ICAO Code', 'Flights Before', 'Flights During', 'Flights After', 'Delta During', 'Delta After', '% During', '% After')) %>%
-	formatPercentage(columns = c('bd_rel', 'ba_rel'), digits = 1)
-```
 
 Overall, there is a moderate loss in flight density during the incident, mostly due to a generalized feeling of insecurity. Brussels Airlines, as one could expect, was the airline that was struck harder by the events, dropping to half its average traffic. After the incidents were over and the Brussels Airport reopened, airlines gained traffic and even surpassed that of before: this is probably due to other events happening, such as Easter, that motivated traveling.
 
