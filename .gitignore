@@ -8,8 +8,11 @@ data/
 # Except for help file
 !data/README.md
 
-# Ignore rendered HTML report
-report/report.html
+# Ignore all rendered files
+report/*.html
+report/*.pdf
+report/*.tex
+report/*/
 
 # Executables
 prep/preprocess
