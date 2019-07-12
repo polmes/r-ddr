@@ -64,7 +64,7 @@ source('analysis.R')
 
 # Render report
 message('Rendering report...')
-ddr.render('report.Rmd')
+ddr.render('paper.Rmd', format = 'pdf')
 
 # End
 message('Done.')
