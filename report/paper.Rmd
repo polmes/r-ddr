@@ -10,6 +10,8 @@ output:
         highlight: tango
         number_sections: true
         keep_tex: true
+header-includes:
+- \usepackage{subfig}
 always_allow_html: true
 ---
 
@@ -40,8 +42,8 @@ Secondly, March 20th signals the beginning of the Holy Week, with March 27th bei
 
 As it is expected, the airport faced a severe decrease in air traffic, both arrivals and departures, after the airport was reopened again. The traffic steadily increased during the first weeks after the reopening, but at a slow pace. On May 1st, the departures hall, which had sustained the most damage, partially reopened and marked the return of the airport to regular activity.
 
-```{r, fig.align='center'}
-ddr.times(data$real$flights, bru, event)
+```{r bru_traffic, fig.align='center', fig.cap=paste('Air Traffic Evolution at', bru)}
+ddr.stimes(data$real$flights, bru, event)
 ```
 
 Computing the mean from the data above, we obtain:
@@ -51,7 +53,7 @@ Computing the mean from the data above, we obtain:
 
 Overall, the traffic is reduced in a `r format(abs((after[orig == bru, mean(N.x + N.y)] - before[orig == bru, mean(N.x + N.y)]) / before[orig == bru, mean(N.x + N.y)]) * 100, digits = 3)`% following the tragic events. Further details of this comparison are presented in the figure below, where the outer violin plot represents the flight density, while the inner box plot quantifies the distribution quartiles and the mean (diamond symbol):
 
-```{r, fig.align='center'}
+```{r bru_average, fig.align='center', fig.cap=paste('Average Daily Flights at', bru)}
 ggplot(data = NULL, aes(y = N.x + N.y)) +
 	geom_violin(data = before[orig == bru], aes(x = 'Before')) +
 	geom_boxplot(data = before[orig == bru], aes(x = 'Before'), width = 0.1) +
@@ -62,8 +64,7 @@ ggplot(data = NULL, aes(y = N.x + N.y)) +
 	stat_summary(data = after[orig == bru], aes(x = 'After'),
 				 fun.y = mean, geom = 'point', shape = 5, size = 2.5) +
 	scale_x_discrete(limits = c('Before', 'After')) +
-	labs(title = paste('Average Daily Flights at', bru), x = NULL, y = 'Number of Flights') +
-	theme(plot.title = element_text(hjust = 0.5))
+	labs(x = NULL, y = 'Number of Flights')
 ```
 
 Bizarrely, despite the airport supposedly being closed from March 22nd to April 3rd, the number of flights during the days following the terrorist attack is non-zero. Let's take a closer look at these flights:
@@ -80,7 +81,7 @@ On average, airlines actually saved `r format(abs(div[, mean(fuel)]), digits = 3
 
 The maps below detail the routes followed by these flights as they were diverted:
 
-```{r, fig.align='center'}
+```{r div_map, fig.align='center', fig.cap=paste('Map of all the diverted flights headed to', bru)}
 ddr.map(data$real$routes[id %in% div[, id]], autocenter = FALSE)
 ```
 
@@ -88,12 +89,15 @@ ddr.map(data$real$routes[id %in% div[, id]], autocenter = FALSE)
 
 The total number of daily flights registered by Eurocontrol is plotted below:
 
-```{r, fig.align='center'}
-dygraph(eu, main = 'European Air Traffic Evolution', ylab = 'Total Number of Flights', width = '100%') %>%
-	dyRangeSelector() %>%
-	dyLegend(width = '160') %>%
-	dyEvent(event[1], 'Airport closes', labelLoc = 'bottom') %>%
-	dyEvent(event[2], 'Airport reopens', labelLoc = 'bottom')
+```{r eu_traffic, fig.align='center', fig.cap='European Air Traffic Evolution'}
+ggplot(data = eu) +
+	geom_line(aes(x = date, y = N, color = '')) +
+	scale_x_date(date_breaks = '1 week', date_labels = '%d/%m') +
+	geom_vline(xintercept = event, linetype = 2) +
+	labs(x = NULL, y = 'Total Number of Flights', color = NULL) +
+	annotate('text', x = event[1], label = 'Airport closes', y = 10, angle = 90, vjust = -1, hjust = 0) +
+	annotate('text', x = event[2], label = 'Airport reopens', y = 10, angle = 90, vjust = -1, hjust = 0) +
+	theme(legend.position = 'none')
 ```
 
 Overall, the effect over European air traffic is low, almost unnoticeable. This is due to the fact that the Brussels Airport does not control a large section of the European air traffic. This effect is even less noticeable taking into account the possibility of rerouting the planned flights through secondary airports.
@@ -106,8 +110,8 @@ In fact, when analyzing the mean before, during and after the incident, we can s
 
 However, since the incident occurred around the Easter celebrations, the traffic was already expected to raise. This can be seen in airports such as Barcelona–El Prat Josep Tarradellas Airport (ICAO: LEBL, IATA: BCN), which showed almost no reaction to the incident and kept the expected evolution:
 
-```{r, fig.align='center'}
-ddr.times(data$real$flights, bcn, event)
+```{r bcn_traffic, fig.align='center', fig.cap=paste('Air Traffic Evolution at', bcn)}
+ddr.stimes(data$real$flights, bcn, event)
 ```
 
 In this case, the increase in traffic volume is significantly higher given the appeal of Barcelona:
@@ -137,10 +141,10 @@ The airports that have been considered to be close to Brussels and of relevance 
 
 To start, we will see how the traffic evolves in the five selected airports around Brussels, from one month before the attack to a month after the reopening of the airport:
 
-```{r, fig.align='center'}
-htmltools::tagList(lapply(nearby, function(airport) {
-	ddr.times(data$real$flights, airport, event, group = 'nearby', height = '250px')
-}))
+```{r nearby_traffic, fig.align='center', fig.cap='Air Traffic Evolution in Nearby Airports', fig.subcap=nearby, fig.ncol=1}
+for (airport in nearby) {
+	print(ddr.stimes(data$real$flights, airport, event))
+}
 ```
 
 The data from the plots above can be easily quantified by computing the mean:
@@ -153,7 +157,7 @@ for (airport in nearby) {
 
 Finally, in order to obtain statistically significant figures regarding the distribution, the box plots for each airport before, during and after the incident are drawn:
 
-```{r, fig.align='center'}
+```{r av_flights, fig.align='center', fig.cap='Average Daily Flights in Nearby Airports'}
 ggplot(data = NULL, aes(y = N.x + N.y)) +
 	geom_boxplot(data = before[orig %in% nearby], aes(x = orig, color = 'before')) +
 	geom_boxplot(data = during[orig %in% nearby], aes(x = orig, color = 'during')) +
@@ -162,8 +166,8 @@ ggplot(data = NULL, aes(y = N.x + N.y)) +
 					   name = NULL, labels = c('Before the attack', paste('While', bru, 'closed'),
 					   						   paste('After', bru, 'reopens'))) +
 	scale_x_discrete(limits = nearby) +
-	labs(title = 'Average Daily Flights in Nearby Airports', x = NULL, y = 'Number of Flights') +
-	theme(plot.title = element_text(hjust = 0.5), legend.position = 'bottom')
+	labs(x = NULL, y = 'Number of Flights') +
+	theme(legend.position = 'top')
 ```
 
 We can see that right after the incident, there is a spike in both arrival and departure traffic density, due to the absorption of the traffic that Brussel’s main airport can’t take. The most notorious case is Liège (EBLG), where the traffic spiked by more than `r round(during[orig == 'EBLG', mean(N.x + N.y)] / before[orig == 'EBLG', mean(N.x + N.y)] * 100 - 100, digits = -2)`%. Following the opening of the main airport, the traffic slowly decreases as the Zaventem airport picks up the pace again.
@@ -174,21 +178,18 @@ The one exception to this is Eindhoven (EHEH), which remains with its steady inc
 
 In this section, the delays at Zaventem and nearby airports are studied. In the first few figures, the average daily delays as a function of time are plotted:
 
-```{r, fig.align='center'}
-htmltools::tagList(lapply(c(bru, nearby), function(icao) {
-	dygraph(delays[airport == icao, .(date, depdel, arrdel)],
-			main = paste('Average Daily Delays at', icao),
-			ylab = paste('Delay (minutes)'),
-			group = 'delay',
-			width = '100%', height = '250px') %>%
-		dySeries('depdel', label = paste('Delay in Departures')) %>%
-		dySeries('arrdel', label = paste('Delay in Arrivals')) %>%
-		dyRangeSelector() %>%
-		dyOptions(colors = c('royalblue', 'coral')) %>%
-		dyLegend(width = '350') %>%
-		dyEvent(event[1], 'Airport closes', labelLoc = 'bottom') %>%
-		dyEvent(event[2], 'Airport reopens', labelLoc = 'bottom')
-}))
+```{r av_delays, fig.align='center', fig.cap='Average Daily Delays', fig.subcap=nearby, fig.ncol=1}
+for (icao in c(bru, nearby)) {
+	print(ggplot(data = delays[airport == icao, .(date, depdel, arrdel)], aes(x = date)) +
+		geom_line(aes(y = depdel, color = 'Delay in Departures')) +
+		geom_line(aes(y = arrdel, color = 'Delay in Arrivals')) +
+		scale_x_date(date_breaks = '1 week', date_labels = '%d/%m') +
+		geom_vline(xintercept = event, linetype = 2) +
+		labs(x = NULL, y = 'Delay (minutes)', color = NULL) +
+		annotate('text', x = event[1], label = 'Airport closes', y = 10, angle = 90, vjust = -1, hjust = 0) +
+		annotate('text', x = event[2], label = 'Airport reopens', y = 10, angle = 90, vjust = -1, hjust = 0) +
+		theme(legend.position = 'top'))
+}
 ```
 
 Note that there is a notable peak during the 20th of March, when an air traffic control strike over France paralyzed the french airspace and caused numerous delays. Any flight that was scheduled to fly over France suffered from delays. In any case, that peak in the delays is not related to the incident being analyzed.
@@ -203,7 +204,7 @@ for (icao in c(bru, nearby)) {
 
 To sum up, the box plots below prove that neither arrival nor departure delays change in any noticeable way during or after the incident with respect to before:
 
-```{r, fig.align='center'}
+```{r av_dep, fig.align='center', fig.cap='Average Daily Departure Delays'}
 ggplot(data = NULL, aes(y = depdel)) +
 	geom_boxplot(data = delays[date < event[1]], aes(x = airport, color = 'before')) +
 	geom_boxplot(data = delays[date >= event[1] & date <= event[2]], aes(x = airport, color = 'during')) +
@@ -212,11 +213,11 @@ ggplot(data = NULL, aes(y = depdel)) +
 					   name = NULL, labels = c('Before the attack', paste('While', bru, 'closed'),
 					   						   paste('After', bru, 'reopens'))) +
 	scale_x_discrete(limits = c(bru, nearby)) +
-	labs(title = 'Average Daily Departure Delays', x = NULL, y = 'Delay (minutes)') +
-	theme(plot.title = element_text(hjust = 0.5), legend.position = 'bottom')
+	labs(x = NULL, y = 'Delay (minutes)') +
+	theme(legend.position = 'top')
 ```
 
-```{r, fig.align='center'}
+```{r av_arr, fig.align='center', fig.cap='Average Daily Arrival Delays'}
 ggplot(data = NULL, aes(y = arrdel)) +
 	geom_boxplot(data = delays[date < event[1]], aes(x = airport, color = 'before')) +
 	geom_boxplot(data = delays[date >= event[1] & date <= event[2]], aes(x = airport, color = 'during')) +
@@ -225,8 +226,8 @@ ggplot(data = NULL, aes(y = arrdel)) +
 					   name = NULL, labels = c('Before the attack', paste('While', bru, 'closed'),
 					   						   paste('After', bru, 'reopens'))) +
 	scale_x_discrete(limits = c(bru, nearby)) +
-	labs(title = 'Average Daily Arrival Delays', x = NULL, y = 'Delay (minutes)') +
-	theme(plot.title = element_text(hjust = 0.5), legend.position = 'bottom')
+	labs(x = NULL, y = 'Delay (minutes)') +
+	theme(legend.position = 'top')
 ```
 
 # Airlines
@@ -243,15 +244,16 @@ The graphic below depicts the air traffic evolution of the top five airlines mos
 - Widerøes Flyveselskap (ICAO: WIF), the largest regional airline operating in the Nordic countries
 - Finnair (ICAO: FIN), the flag carrier of Finland (Oneworld)
 
-```{r, fig.align='center'}
-dygraph(fuckedplot,
-		main = 'Most Affected Airlines',
-		ylab = 'Number of Flights',
-		width = '100%') %>%
-	dyRangeSelector() %>%
-	dyLegend(width = '360') %>%
-	dyEvent(event[1], 'Airport closes', labelLoc = 'bottom') %>%
-	dyEvent(event[2], 'Airport reopens', labelLoc = 'bottom')
+```{r fucked, fig.align='center', fig.cap='Most Affected Airlines'}
+	ggplot(data = melt(fuckedplot[, 2:ncol(fuckedplot) := lapply(.SD, as.integer),
+								  .SDcols = 2:ncol(fuckedplot)], c('date'))) +
+		geom_line(aes(x = date, y = value, color = variable)) +
+		scale_x_date(date_breaks = '1 week', date_labels = '%d/%m') +
+		geom_vline(xintercept = event, linetype = 2) +
+		labs(x = NULL, y = 'Number of Flights', color = NULL) +
+		annotate('text', x = event[1], label = 'Airport closes', y = 10, angle = 90, vjust = -1, hjust = 0) +
+		annotate('text', x = event[2], label = 'Airport reopens', y = 10, angle = 90, vjust = -1, hjust = 0) +
+		theme(legend.position = 'top')
 ```
 
 It is interesting to note that the sudden drop in flights on the 27th of April for Brussels Airlines is due to a strike which affected all Lufthansa Group pilots, which Brussels Airlines belongs to.
