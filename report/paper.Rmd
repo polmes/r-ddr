@@ -12,7 +12,6 @@ output:
         keep_tex: true
 header-includes:
 - \usepackage{subfig}
-always_allow_html: true
 ---
 
 ```{r setup, include = FALSE}
