@@ -99,6 +99,4 @@ fuckedplot <- data$real$flights[airline %in% mostfucked & as.Date(takeoff) >= da
 								.N, by = .(as.Date(takeoff), airline)]
 fuckedplot <- reshape(fuckedplot, timevar = 'airline', idvar = 'as.Date', direction = 'wide')
 fuckedplot[is.na(fuckedplot)] = 0 # deal with <NA> values
-currnames <- colnames(fuckedplot)
-newnames = substr(currnames[2:6],start=3,stop=10000)
-setnames(fuckedplot, c('date', newnames))
+setnames(fuckedplot, c('date', substr(colnames(fuckedplot)[2:6], start = 3, stop = 5)))
